@@ -9,6 +9,8 @@ export interface Course {
   progress?: number; // 0-100
   isEnrolled?: boolean;
   isNew?: boolean;
+  isPremium?: boolean;
+  comingSoon?: boolean;
   totalLessons?: number;
   completedLessons?: number;
 }
