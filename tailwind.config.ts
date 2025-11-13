@@ -47,8 +47,8 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        netflix: {
-          red: "hsl(var(--netflix-red))",
+        lovable: {
+          blue: "hsl(var(--lovable-blue))",
           black: "hsl(var(--netflix-black))",
           "dark-gray": "hsl(var(--netflix-dark-gray))",
           gray: "hsl(var(--netflix-gray))",
