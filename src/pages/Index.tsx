@@ -2,8 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { HeroBanner } from "@/components/course/HeroBanner";
 import { CourseShelf } from "@/components/course/CourseShelf";
 import {
-  continuingCourses,
-  enrolledCourses,
+  featuredCourse,
   newCourses,
   recommendedCourses,
   categories,
@@ -13,9 +12,6 @@ import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  
-  // Usar o primeiro curso premium como destaque
-  const featuredCourse = recommendedCourses[0] || newCourses[0];
 
   const handleCourseClick = (course: Course) => {
     navigate(`/curso/${course.id}`);
@@ -26,15 +22,13 @@ const Index = () => {
       <Header />
       
       {/* Hero Banner */}
-      {featuredCourse && (
-        <div className="pt-16">
-          <HeroBanner
-            course={featuredCourse}
-            onPlay={() => handleCourseClick(featuredCourse)}
-            onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
-          />
-        </div>
-      )}
+      <div className="pt-16">
+        <HeroBanner
+          course={featuredCourse}
+          onPlay={() => handleCourseClick(featuredCourse)}
+          onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
+        />
+      </div>
 
       {/* Course Shelves */}
       <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
