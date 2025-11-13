@@ -14,7 +14,8 @@ import { useNavigate } from "react-router-dom";
 const Index = () => {
   const navigate = useNavigate();
   
-  const featuredCourse = continuingCourses[0];
+  // Usar o primeiro curso premium como destaque
+  const featuredCourse = recommendedCourses[0] || newCourses[0];
 
   const handleCourseClick = (course: Course) => {
     navigate(`/curso/${course.id}`);
@@ -25,30 +26,18 @@ const Index = () => {
       <Header />
       
       {/* Hero Banner */}
-      <div className="pt-16">
-        <HeroBanner
-          course={featuredCourse}
-          onPlay={() => handleCourseClick(featuredCourse)}
-          onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
-        />
-      </div>
+      {featuredCourse && (
+        <div className="pt-16">
+          <HeroBanner
+            course={featuredCourse}
+            onPlay={() => handleCourseClick(featuredCourse)}
+            onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
+          />
+        </div>
+      )}
 
       {/* Course Shelves */}
       <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
-        {/* Continue Watching */}
-        <CourseShelf
-          title="Continuar Assistindo"
-          courses={continuingCourses}
-          onCourseClick={handleCourseClick}
-        />
-
-        {/* My Enrolled Courses */}
-        <CourseShelf
-          title="Meus Cursos Matriculados"
-          courses={enrolledCourses}
-          onCourseClick={handleCourseClick}
-        />
-
         {/* New Courses */}
         <CourseShelf
           title="Novos Cursos"
