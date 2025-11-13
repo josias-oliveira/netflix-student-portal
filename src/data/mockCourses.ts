@@ -1,18 +1,19 @@
 import { Course, CourseCategory } from "@/types/course";
+import cursoApresentacoesImg from "@/assets/curso-apresentacoes.jpg";
 
 export const continuingCourses: Course[] = [
   {
     id: "1",
-    title: "React Avançado: Hooks e Performance",
-    description: "Domine React Hooks e otimização de performance",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=450&fit=crop",
-    category: "Programação",
-    duration: "8h 30min",
-    instructor: "João Silva",
-    progress: 45,
+    title: "Apresentações: como dominar as técnicas de comunicação em público",
+    description: "Aprenda técnicas profissionais de oratória e comunicação para apresentações impactantes",
+    thumbnail: cursoApresentacoesImg,
+    category: "Comunicação",
+    duration: "6h 45min",
+    instructor: "Professor Expert",
+    progress: 35,
     isEnrolled: true,
-    totalLessons: 42,
-    completedLessons: 19,
+    totalLessons: 28,
+    completedLessons: 10,
   },
   {
     id: "2",
