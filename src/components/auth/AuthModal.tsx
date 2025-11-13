@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Gift, Check } from "lucide-react";
 
 interface AuthModalProps {
   open: boolean;
@@ -83,7 +85,8 @@ export const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {isSignUp && <Gift className="h-5 w-5 text-primary" />}
             {isSignUp ? "Crie sua conta gratuita" : "Faça login"}
           </DialogTitle>
           <DialogDescription>
@@ -91,6 +94,22 @@ export const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => 
               ? "Crie sua conta gratuita para assistir a este e a outros cursos!"
               : "Entre na sua conta para continuar"}
           </DialogDescription>
+          {isSignUp && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Badge variant="secondary" className="gap-1">
+                <Check className="h-3 w-3" />
+                100% Grátis
+              </Badge>
+              <Badge variant="secondary" className="gap-1">
+                <Check className="h-3 w-3" />
+                Acesso Ilimitado
+              </Badge>
+              <Badge variant="secondary" className="gap-1">
+                <Check className="h-3 w-3" />
+                Certificados
+              </Badge>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-4">
