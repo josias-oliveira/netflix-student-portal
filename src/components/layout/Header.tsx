@@ -26,21 +26,21 @@ export const Header = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Button
               variant="ghost"
-              className="text-foreground hover:text-primary"
+              className="text-foreground hover:text-black"
               onClick={() => navigate("/")}
             >
               Início
             </Button>
             <Button
               variant="ghost"
-              className="text-foreground hover:text-primary"
+              className="text-foreground hover:text-black"
               onClick={() => navigate("/meus-cursos")}
             >
               Meus Cursos
             </Button>
             <Button
               variant="ghost"
-              className="text-foreground hover:text-primary"
+              className="text-foreground hover:text-black"
               onClick={() => navigate("/certificados")}
             >
               Certificados
