@@ -1,0 +1,77 @@
+import { Course } from "@/types/course";
+import { Play, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+
+interface CourseCardProps {
+  course: Course;
+  onClick?: () => void;
+}
+
+export const CourseCard = ({ course, onClick }: CourseCardProps) => {
+  return (
+    <div
+      className="group relative flex-shrink-0 w-[280px] sm:w-[320px] cursor-pointer course-card-hover"
+      onClick={onClick}
+    >
+      <div className="relative aspect-video rounded-md overflow-hidden bg-card">
+        <img
+          src={course.thumbnail}
+          alt={course.title}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        
+        {/* Progress bar overlay */}
+        {course.progress !== undefined && course.progress > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-progress-bg">
+            <div
+              className="h-full bg-progress transition-all"
+              style={{ width: `${course.progress}%` }}
+            />
+          </div>
+        )}
+
+        {/* Play button overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center">
+            <Play className="w-8 h-8 text-primary-foreground ml-1" fill="currentColor" />
+          </div>
+        </div>
+
+        {/* New badge */}
+        {course.isNew && (
+          <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground">
+            Novo
+          </Badge>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-1">
+        <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+          {course.title}
+        </h3>
+        <p className="text-sm text-muted-foreground line-clamp-2">
+          {course.description}
+        </p>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          <span>{course.duration}</span>
+          {course.totalLessons && (
+            <>
+              <span>•</span>
+              <span>{course.totalLessons} aulas</span>
+            </>
+          )}
+        </div>
+        {course.progress !== undefined && course.progress > 0 && (
+          <div className="pt-1">
+            <Progress value={course.progress} className="h-1" />
+            <p className="text-xs text-muted-foreground mt-1">
+              {course.progress}% concluído
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

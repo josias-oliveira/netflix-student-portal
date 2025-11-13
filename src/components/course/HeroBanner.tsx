@@ -1,0 +1,72 @@
+import { Button } from "@/components/ui/button";
+import { Play, Info } from "lucide-react";
+import { Course } from "@/types/course";
+
+interface HeroBannerProps {
+  course: Course;
+  onPlay?: () => void;
+  onInfo?: () => void;
+}
+
+export const HeroBanner = ({ course, onPlay, onInfo }: HeroBannerProps) => {
+  return (
+    <div className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
+      {/* Background image with gradient overlay */}
+      <div className="absolute inset-0">
+        <img
+          src={course.thumbnail}
+          alt={course.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+        <div className="gradient-overlay-bottom" />
+      </div>
+
+      {/* Content */}
+      <div className="relative h-full container mx-auto px-4 sm:px-8 flex items-center">
+        <div className="max-w-2xl space-y-4 sm:space-y-6">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-foreground leading-tight">
+            {course.title}
+          </h1>
+          
+          <p className="text-base sm:text-lg text-muted-foreground max-w-xl">
+            {course.description}
+          </p>
+
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{course.instructor}</span>
+            <span>•</span>
+            <span>{course.duration}</span>
+            {course.totalLessons && (
+              <>
+                <span>•</span>
+                <span>{course.totalLessons} aulas</span>
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              onClick={onPlay}
+            >
+              <Play className="mr-2 h-5 w-5" fill="currentColor" />
+              {course.progress ? "Continuar Assistindo" : "Assistir Agora"}
+            </Button>
+            
+            <Button
+              size="lg"
+              variant="secondary"
+              className="bg-secondary/50 hover:bg-secondary text-secondary-foreground font-semibold"
+              onClick={onInfo}
+            >
+              <Info className="mr-2 h-5 w-5" />
+              Mais Informações
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
