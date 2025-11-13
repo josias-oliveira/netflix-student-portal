@@ -16,6 +16,7 @@ import Subscriptions from "./pages/admin/Subscriptions";
 import Settings from "./pages/admin/Settings";
 import CourseEditor from "./pages/admin/CourseEditor";
 import NotFound from "./pages/NotFound";
+import Perfil from "./pages/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/meus-cursos" element={<MeusCursos />} />
           <Route path="/certificados" element={<Certificados />} />
           <Route path="/assinatura" element={<Assinatura />} />
+          <Route path="/perfil" element={<Perfil />} />
           <Route path="/curso/:courseId" element={<CoursePlayer />} />
           
           {/* Admin Routes */}
