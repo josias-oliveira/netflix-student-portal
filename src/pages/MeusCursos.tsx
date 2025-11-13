@@ -2,16 +2,13 @@ import { Header } from "@/components/layout/Header";
 import { CourseCard } from "@/components/course/CourseCard";
 import { enrolledCourses } from "@/data/mockCourses";
 import { Course } from "@/types/course";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const MeusCursos = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCourseClick = (course: Course) => {
-    toast({
-      title: "Abrindo curso",
-      description: `Carregando ${course.title}...`,
-    });
+    navigate(`/curso/${course.id}`);
   };
 
   return (
