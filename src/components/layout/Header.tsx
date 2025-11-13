@@ -19,7 +19,7 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
-            <img src={btxLogo} alt="BTX Logo" className="h-8 w-8 object-contain" />
+            <img src={btxLogo} alt="BTX Logo" className="h-12 w-12 object-contain" />
             <h1 className="text-2xl font-bold text-primary">EduStream</h1>
           </div>
           
