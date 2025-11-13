@@ -21,6 +21,14 @@ export const Header = () => {
   const { isAuthenticated, user } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  const handleProtectedNavigation = (path: string) => {
+    if (!isAuthenticated) {
+      setAuthModalOpen(true);
+      return;
+    }
+    navigate(path);
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logout realizado com sucesso!");
@@ -46,14 +54,14 @@ export const Header = () => {
             <Button
               variant="ghost"
               className="text-foreground hover:text-black"
-              onClick={() => navigate("/meus-cursos")}
+              onClick={() => handleProtectedNavigation("/meus-cursos")}
             >
               Meus Cursos
             </Button>
             <Button
               variant="ghost"
               className="text-foreground hover:text-black"
-              onClick={() => navigate("/certificados")}
+              onClick={() => handleProtectedNavigation("/certificados")}
             >
               Certificados
             </Button>
