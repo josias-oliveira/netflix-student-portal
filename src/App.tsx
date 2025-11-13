@@ -8,6 +8,12 @@ import MeusCursos from "./pages/MeusCursos";
 import Certificados from "./pages/Certificados";
 import Assinatura from "./pages/Assinatura";
 import CoursePlayer from "./pages/CoursePlayer";
+import AdminLayout from "./pages/admin/AdminLayout";
+import Dashboard from "./pages/admin/Dashboard";
+import Courses from "./pages/admin/Courses";
+import Students from "./pages/admin/Students";
+import Subscriptions from "./pages/admin/Subscriptions";
+import Settings from "./pages/admin/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,11 +25,22 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Student Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/meus-cursos" element={<MeusCursos />} />
           <Route path="/certificados" element={<Certificados />} />
           <Route path="/assinatura" element={<Assinatura />} />
           <Route path="/curso/:courseId" element={<CoursePlayer />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="cursos" element={<Courses />} />
+            <Route path="alunos" element={<Students />} />
+            <Route path="assinaturas" element={<Subscriptions />} />
+            <Route path="configuracoes" element={<Settings />} />
+          </Route>
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
