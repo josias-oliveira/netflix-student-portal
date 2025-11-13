@@ -1,8 +1,21 @@
 import { Course, CourseCategory } from "@/types/course";
+import cursoApresentacoesImg from "@/assets/curso-apresentacoes.jpg";
 
 export const continuingCourses: Course[] = [];
 
 export const enrolledCourses: Course[] = [];
+
+// Curso destaque para a capa
+export const featuredCourse: Course = {
+  id: "featured",
+  title: "Apresentações: como dominar as técnicas de comunicação em público",
+  description: "Aprenda técnicas profissionais de oratória e comunicação para apresentações impactantes",
+  thumbnail: cursoApresentacoesImg,
+  category: "Comunicação",
+  duration: "6h 45min",
+  instructor: "Josias Oliveira",
+  totalLessons: 28,
+};
 
 export const newCourses: Course[] = [
   {
