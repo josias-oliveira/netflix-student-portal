@@ -12,40 +12,12 @@ import {
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingCourse, setPendingCourse] = useState<Course | null>(null);
-  const [creatingAdmin, setCreatingAdmin] = useState(false);
-
-  const handleCreateAdmin = async () => {
-    setCreatingAdmin(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('setup-admin', {
-        body: {}
-      });
-
-      if (error) throw error;
-
-      toast.success('Administrador criado com sucesso!', {
-        description: 'Email: josiasoliveiraux@gmail.com'
-      });
-      
-      console.log('Admin criado:', data);
-    } catch (error: any) {
-      toast.error('Erro ao criar administrador', {
-        description: error.message
-      });
-      console.error('Erro:', error);
-    } finally {
-      setCreatingAdmin(false);
-    }
-  };
 
   const handleCourseClick = (course: Course) => {
     if (!isAuthenticated) {
@@ -66,16 +38,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Botão temporário para criar admin */}
-      <Button
-        onClick={handleCreateAdmin}
-        disabled={creatingAdmin}
-        className="fixed bottom-4 right-4 z-50"
-        size="lg"
-      >
-        {creatingAdmin ? 'Criando Admin...' : '🔧 Criar Admin'}
-      </Button>
       
       {/* Hero Banner */}
       <div className="pt-16">
