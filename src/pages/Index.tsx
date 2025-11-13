@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { HeroBanner } from "@/components/course/HeroBanner";
 import { CourseShelf } from "@/components/course/CourseShelf";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { CourseInfoModal } from "@/components/course/CourseInfoModal";
 import {
   featuredCourse,
   newCourses,
@@ -17,7 +18,9 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [courseInfoModalOpen, setCourseInfoModalOpen] = useState(false);
   const [pendingCourse, setPendingCourse] = useState<Course | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const handleCourseClick = (course: Course) => {
     if (!isAuthenticated) {
@@ -35,6 +38,22 @@ const Index = () => {
     }
   };
 
+  const handleCourseInfo = (course: Course) => {
+    setSelectedCourse(course);
+    setCourseInfoModalOpen(true);
+  };
+
+  const handleEnrollFromModal = () => {
+    if (!isAuthenticated && selectedCourse) {
+      setCourseInfoModalOpen(false);
+      setPendingCourse(selectedCourse);
+      setAuthModalOpen(true);
+    } else if (isAuthenticated && selectedCourse) {
+      setCourseInfoModalOpen(false);
+      navigate(`/curso/${selectedCourse.id}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -44,7 +63,7 @@ const Index = () => {
         <HeroBanner
           course={featuredCourse}
           onPlay={() => handleCourseClick(featuredCourse)}
-          onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
+          onInfo={() => handleCourseInfo(featuredCourse)}
         />
       </div>
 
@@ -84,6 +103,17 @@ const Index = () => {
         onOpenChange={setAuthModalOpen}
         onSuccess={handleAuthSuccess}
       />
+
+      {/* Course Info Modal */}
+      {selectedCourse && (
+        <CourseInfoModal
+          course={selectedCourse}
+          open={courseInfoModalOpen}
+          onOpenChange={setCourseInfoModalOpen}
+          onEnroll={handleEnrollFromModal}
+          isAuthenticated={isAuthenticated}
+        />
+      )}
     </div>
   );
 };
