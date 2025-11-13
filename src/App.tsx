@@ -14,6 +14,7 @@ import Courses from "./pages/admin/Courses";
 import Students from "./pages/admin/Students";
 import Subscriptions from "./pages/admin/Subscriptions";
 import Settings from "./pages/admin/Settings";
+import CourseEditor from "./pages/admin/CourseEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,8 @@ const App = () => (
             <Route path="assinaturas" element={<Subscriptions />} />
             <Route path="configuracoes" element={<Settings />} />
           </Route>
+          <Route path="/admin/cursos/editor/:courseId" element={<CourseEditor />} />
+          <Route path="/admin/cursos/novo" element={<CourseEditor />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

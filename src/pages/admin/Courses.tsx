@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
 
 export default function Courses() {
   const [courses] = useState(adminCourses);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
@@ -23,10 +25,16 @@ export default function Courses() {
           <h1 className="text-3xl font-bold text-foreground">Cursos</h1>
           <p className="text-muted-foreground">Gerencie o conteúdo da plataforma</p>
         </div>
-        <Button className="gap-2">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={() => navigate("/admin/cursos/novo")}
+        >
           <Plus className="h-4 w-4" />
           Adicionar Novo Curso
         </Button>
+      </div>
       </div>
 
       <Card>
@@ -66,7 +74,11 @@ export default function Courses() {
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <Button variant="ghost" size="icon">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => navigate(`/admin/cursos/editor/${course.id}`)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon">
