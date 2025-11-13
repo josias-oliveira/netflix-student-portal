@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import btxLogo from "@/assets/btx-logo.png";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -17,7 +18,10 @@ export const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/95 to-transparent">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <h1 className="text-2xl font-bold text-primary">EduStream</h1>
+          <div className="flex items-center gap-3">
+            <img src={btxLogo} alt="BTX Logo" className="h-8 w-8 object-contain" />
+            <h1 className="text-2xl font-bold text-primary">EduStream</h1>
+          </div>
           
           <nav className="hidden md:flex items-center gap-6">
             <Button
