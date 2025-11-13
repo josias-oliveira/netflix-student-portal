@@ -159,9 +159,11 @@ export const CourseInfoModal = ({
         {/* CTA Section */}
         <div className="px-6 py-4 border-t border-border/50 bg-muted/30">
           <div className="text-center space-y-3">
-            <h3 className="text-xl font-bold text-foreground">
-              Gostou? Inscreva-se Agora Gratuitamente!
-            </h3>
+            {!isAuthenticated && (
+              <h3 className="text-xl font-bold text-foreground">
+                Gostou? Inscreva-se Agora Gratuitamente!
+              </h3>
+            )}
             <Button 
               size="lg" 
               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
