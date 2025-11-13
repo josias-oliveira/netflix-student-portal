@@ -9,18 +9,15 @@ import {
   categories,
 } from "@/data/mockCourses";
 import { Course } from "@/types/course";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
   
   const featuredCourse = continuingCourses[0];
 
   const handleCourseClick = (course: Course) => {
-    toast({
-      title: "Abrindo curso",
-      description: `Carregando ${course.title}...`,
-    });
+    navigate(`/curso/${course.id}`);
   };
 
   return (
@@ -32,7 +29,7 @@ const Index = () => {
         <HeroBanner
           course={featuredCourse}
           onPlay={() => handleCourseClick(featuredCourse)}
-          onInfo={() => toast({ title: "Informações do curso" })}
+          onInfo={() => navigate(`/curso/${featuredCourse.id}`)}
         />
       </div>
 
