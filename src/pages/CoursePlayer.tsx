@@ -1,22 +1,107 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, List } from "lucide-react";
+import { VideoPlayer } from "@/components/course/VideoPlayer";
+import { supabase } from "@/integrations/supabase/client";
 import { continuingCourses, enrolledCourses, newCourses, recommendedCourses, categories } from "@/data/mockCourses";
 
 export default function CoursePlayer() {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const [course, setCourse] = useState<any>(null);
+  const [currentLesson, setCurrentLesson] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find the course from all available courses
-  const allCourses = [
-    ...continuingCourses,
-    ...enrolledCourses,
-    ...newCourses,
-    ...recommendedCourses,
-    ...categories.flatMap(cat => cat.courses),
-  ];
+  useEffect(() => {
+    async function loadCourse() {
+      if (!courseId) return;
 
-  const course = allCourses.find(c => c.id === courseId);
+      // Try to load from Supabase first (numeric IDs)
+      if (!isNaN(Number(courseId))) {
+        try {
+          const { data: courseData, error: courseError } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('id', courseId)
+            .single();
+
+          if (courseError) throw courseError;
+
+          // Load modules and lessons
+          const { data: modules, error: modulesError } = await supabase
+            .from('modules')
+            .select('*')
+            .eq('course_id', courseId)
+            .order('order');
+
+          if (modulesError) throw modulesError;
+
+          if (modules && modules.length > 0) {
+            // Load first lesson
+            const { data: lessons, error: lessonsError } = await supabase
+              .from('lessons')
+              .select('*')
+              .eq('module_id', modules[0].id)
+              .order('order')
+              .limit(1);
+
+            if (!lessonsError && lessons && lessons.length > 0) {
+              setCurrentLesson(lessons[0]);
+            }
+          }
+
+          setCourse(courseData);
+          setLoading(false);
+          return;
+        } catch (error) {
+          console.error('Error loading course from Supabase:', error);
+        }
+      }
+
+      // Fallback to mock data
+      const allCourses = [
+        ...continuingCourses,
+        ...enrolledCourses,
+        ...newCourses,
+        ...recommendedCourses,
+        ...categories.flatMap(cat => cat.courses),
+      ];
+
+      const mockCourse = allCourses.find(c => c.id === courseId);
+      
+      if (mockCourse) {
+        setCourse({
+          title: mockCourse.title,
+          description: mockCourse.description,
+          instructor: mockCourse.instructor,
+          duration: mockCourse.duration,
+          totalLessons: mockCourse.totalLessons,
+          progress: mockCourse.progress,
+        });
+        
+        // For mock course with ID "1", set a lesson with video URL
+        if (courseId === "1") {
+          setCurrentLesson({
+            title: "Aula 1: Introdução",
+            video_url: "https://player-vz-24a43ece-cb0.tv.pandavideo.com.br/embed/?v=70b7c486-a50f-46a8-bbbf-8689dbaa4608",
+          });
+        }
+      }
+      
+      setLoading(false);
+    }
+
+    loadCourse();
+  }, [courseId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando curso...</p>
+      </div>
+    );
+  }
 
   if (!course) {
     return (
@@ -28,11 +113,6 @@ export default function CoursePlayer() {
       </div>
     );
   }
-
-  // Video URL - using the PandaVideo link for course ID "1" (Apresentações)
-  const videoUrl = courseId === "1" 
-    ? "https://player-vz-24a43ece-cb0.tv.pandavideo.com.br/embed/?v=70b7c486-a50f-46a8-bbbf-8689dbaa4608"
-    : "";
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,7 +129,9 @@ export default function CoursePlayer() {
             </Button>
             <div>
               <h1 className="text-lg font-semibold text-foreground">{course.title}</h1>
-              <p className="text-sm text-muted-foreground">{course.instructor}</p>
+              {course.instructor && (
+                <p className="text-sm text-muted-foreground">{course.instructor}</p>
+              )}
             </div>
           </div>
           <Button variant="outline" size="sm">
@@ -61,41 +143,51 @@ export default function CoursePlayer() {
 
       {/* Video Player */}
       <div className="pt-16">
-        <div className="w-full bg-black">
-          {videoUrl ? (
-            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-              <iframe
-                src={videoUrl}
-                className="absolute top-0 left-0 w-full h-full"
-                style={{ border: 'none' }}
-                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <div className="aspect-video flex items-center justify-center">
-              <p className="text-muted-foreground">Vídeo não disponível</p>
-            </div>
-          )}
-        </div>
+        {currentLesson && (currentLesson.video_url || currentLesson.streaming_url) ? (
+          <VideoPlayer
+            videoUrl={currentLesson.video_url}
+            streamingUrl={currentLesson.streaming_url}
+          />
+        ) : (
+          <div className="w-full bg-black aspect-video flex items-center justify-center">
+            <p className="text-muted-foreground">Vídeo não disponível</p>
+          </div>
+        )}
 
         {/* Course Info */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
-              Aula 1: Introdução
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              {course.description}
-            </p>
+            {currentLesson && (
+              <h2 className="text-2xl font-bold text-foreground mb-4">
+                {currentLesson.title}
+              </h2>
+            )}
+            
+            {currentLesson?.description && (
+              <p className="text-muted-foreground mb-6">
+                {currentLesson.description}
+              </p>
+            )}
+            
+            {course.description && !currentLesson?.description && (
+              <p className="text-muted-foreground mb-6">
+                {course.description}
+              </p>
+            )}
             
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span>{course.duration}</span>
+              {course.duration && <span>{course.duration}</span>}
               {course.totalLessons && (
-                <span>{course.totalLessons} aulas</span>
+                <>
+                  {course.duration && <span>•</span>}
+                  <span>{course.totalLessons} aulas</span>
+                </>
               )}
               {course.progress !== undefined && (
-                <span>{course.progress}% concluído</span>
+                <>
+                  <span>•</span>
+                  <span>{course.progress}% concluído</span>
+                </>
               )}
             </div>
           </div>
