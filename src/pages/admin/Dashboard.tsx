@@ -1,8 +1,39 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, UserPlus, DollarSign } from "lucide-react";
-import { dashboardStats } from "@/data/mockAdminData";
+import { Users, UserCheck, UserPlus, BookOpen, Loader2 } from "lucide-react";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 export default function Dashboard() {
+  const { stats, loading, error } = useDashboardStats();
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral da plataforma</p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral da plataforma</p>
+        </div>
+        <Card className="border-destructive">
+          <CardContent className="p-4">
+            <p className="text-destructive text-sm">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,7 +48,7 @@ export default function Dashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.totalStudents}</div>
+            <div className="text-2xl font-bold">{stats.totalStudents}</div>
             <p className="text-xs text-muted-foreground">Todos os usuários cadastrados</p>
           </CardContent>
         </Card>
@@ -28,7 +59,7 @@ export default function Dashboard() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.activeStudents}</div>
+            <div className="text-2xl font-bold">{stats.activeStudents}</div>
             <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
           </CardContent>
         </Card>
@@ -39,21 +70,19 @@ export default function Dashboard() {
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.newEnrollments}</div>
+            <div className="text-2xl font-bold">{stats.newEnrollments}</div>
             <p className="text-xs text-muted-foreground">Este mês</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receita Mensal (MRR)</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Cursos Publicados</CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              R$ {dashboardStats.monthlyRevenue.toLocaleString("pt-BR")}
-            </div>
-            <p className="text-xs text-muted-foreground">Receita recorrente</p>
+            <div className="text-2xl font-bold">{stats.totalCourses}</div>
+            <p className="text-xs text-muted-foreground">Disponíveis na plataforma</p>
           </CardContent>
         </Card>
       </div>
@@ -63,8 +92,11 @@ export default function Dashboard() {
           <CardTitle>Atividade Recente</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">
-            Gráfico de novos alunos vs. alunos cancelados (Em desenvolvimento)
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>📊 {stats.totalStudents} alunos cadastrados</p>
+            <p>✅ {stats.activeStudents} alunos ativos nos últimos 30 dias</p>
+            <p>📚 {stats.totalCourses} {stats.totalCourses === 1 ? 'curso publicado' : 'cursos publicados'}</p>
+            <p>🎓 {stats.newEnrollments} {stats.newEnrollments === 1 ? 'novo cadastro' : 'novos cadastros'} este mês</p>
           </div>
         </CardContent>
       </Card>
