@@ -27,8 +27,11 @@ export interface Module {
 export interface CourseStructure {
   id: string;
   title: string;
+  slug?: string;
   description?: string;
   thumbnail_url?: string;
+  cover_image_url?: string;
+  featured?: boolean;
   status?: 'draft' | 'published';
   modules: Module[];
 }

@@ -47,9 +47,13 @@ export function ContentEditor({
             courseTitle={course.title}
             courseDescription={course.description}
             thumbnailUrl={course.thumbnail_url}
+            coverImageUrl={course.cover_image_url}
+            featured={course.featured}
             onTitleUpdate={(title) => onCourseUpdate({ title })}
             onDescriptionUpdate={(description) => onCourseUpdate({ description })}
             onThumbnailUpdate={(thumbnail_url) => onCourseUpdate({ thumbnail_url })}
+            onCoverImageUpdate={(cover_image_url) => onCourseUpdate({ cover_image_url })}
+            onFeaturedUpdate={(featured) => onCourseUpdate({ featured })}
           />
         </div>
       </div>

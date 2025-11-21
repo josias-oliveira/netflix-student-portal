@@ -51,25 +51,34 @@ export type Database = {
       }
       courses: {
         Row: {
+          cover_image_url: string | null
           created_at: string | null
           description: string | null
+          featured: boolean | null
           id: number
+          slug: string | null
           status: string | null
           thumbnail_url: string | null
           title: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: never
+          slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: never
+          slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title?: string
@@ -333,6 +342,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_slug: { Args: { title: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
