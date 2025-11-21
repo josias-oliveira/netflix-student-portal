@@ -44,12 +44,6 @@ export function useCourses() {
 
   useEffect(() => {
     async function fetchCourses() {
-      if (!isAuthenticated) {
-        setCourses([]);
-        setLoading(false);
-        return;
-      }
-
       try {
         const { data, error } = await supabase
           .from('courses')
@@ -97,7 +91,7 @@ export function useCourses() {
     }
 
     fetchCourses();
-  }, [isAuthenticated]);
+  }, []);
 
   return { courses, loading, error };
 }
