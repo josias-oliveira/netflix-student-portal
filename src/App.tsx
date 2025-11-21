@@ -17,6 +17,7 @@ import Settings from "./pages/admin/Settings";
 import CourseEditor from "./pages/admin/CourseEditor";
 import NotFound from "./pages/NotFound";
 import Perfil from "./pages/Perfil";
+import { ProtectedAdminRoute } from "./components/auth/ProtectedAdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -36,15 +37,15 @@ const App = () => (
           <Route path="/curso/:courseId" element={<CoursePlayer />} />
           
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="cursos" element={<Courses />} />
             <Route path="alunos" element={<Students />} />
             <Route path="assinaturas" element={<Subscriptions />} />
             <Route path="configuracoes" element={<Settings />} />
           </Route>
-          <Route path="/admin/cursos/editor/:courseId" element={<CourseEditor />} />
-          <Route path="/admin/cursos/novo" element={<CourseEditor />} />
+          <Route path="/admin/cursos/editor/:courseId" element={<ProtectedAdminRoute><CourseEditor /></ProtectedAdminRoute>} />
+          <Route path="/admin/cursos/novo" element={<ProtectedAdminRoute><CourseEditor /></ProtectedAdminRoute>} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
