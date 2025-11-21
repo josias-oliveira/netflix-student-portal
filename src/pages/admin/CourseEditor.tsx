@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Eye, CheckCircle } from "lucide-react";
 import { CourseStructure } from "@/components/admin/course-editor/CourseStructure";
 import { ContentEditor } from "@/components/admin/course-editor/ContentEditor";
+import { CoursePreviewModal } from "@/components/admin/course-editor/CoursePreviewModal";
 import { CourseStructure as CourseStructureType, Module, Lesson, SelectedItem, Material } from "@/types/courseEditor";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,6 +33,7 @@ export default function CourseEditor() {
   });
 
   const [selectedItem, setSelectedItem] = useState<SelectedItem>({ type: 'none' });
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleCourseEdit = (title: string) => {
     setCourse(prev => ({ ...prev, title }));
@@ -192,10 +194,7 @@ export default function CourseEditor() {
   };
 
   const handlePreview = () => {
-    toast({
-      title: "Visualizar curso",
-      description: "Abrindo visualização como aluno...",
-    });
+    setShowPreview(true);
   };
 
   const handlePublish = () => {
@@ -206,7 +205,14 @@ export default function CourseEditor() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <>
+      <CoursePreviewModal
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        course={course}
+      />
+      
+      <div className="h-screen flex flex-col bg-background">
       {/* Top Bar */}
       <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card">
         <div className="flex items-center gap-3">
@@ -270,5 +276,6 @@ export default function CourseEditor() {
         </div>
       </div>
     </div>
+    </>
   );
 }
