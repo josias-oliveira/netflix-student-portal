@@ -69,10 +69,11 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPla
   return (
     <video
       ref={videoRef}
-      className={className}
+      className={`w-full h-auto ${className}`}
       controls
       controlsList="nodownload"
       playsInline
+      preload="metadata"
     >
       Seu navegador não suporta a reprodução de vídeo.
     </video>
