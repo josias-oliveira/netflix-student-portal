@@ -61,11 +61,15 @@ export function ContentEditor({
                 thumbnailUrl={course.thumbnail_url}
                 coverImageUrl={course.cover_image_url}
                 featured={course.featured}
+                isPaid={course.is_paid}
+                price={course.price}
                 onTitleUpdate={(title) => onCourseUpdate({ title })}
                 onDescriptionUpdate={(description) => onCourseUpdate({ description })}
                 onThumbnailUpdate={(thumbnail_url) => onCourseUpdate({ thumbnail_url })}
                 onCoverImageUpdate={(cover_image_url) => onCourseUpdate({ cover_image_url })}
                 onFeaturedUpdate={(featured) => onCourseUpdate({ featured })}
+                onIsPaidUpdate={(is_paid) => onCourseUpdate({ is_paid })}
+                onPriceUpdate={(price) => onCourseUpdate({ price })}
               />
             </TabsContent>
             

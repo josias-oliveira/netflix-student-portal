@@ -63,6 +63,8 @@ export type Database = {
           description: string | null
           featured: boolean | null
           id: number
+          is_paid: boolean | null
+          price: number | null
           slug: string | null
           status: string | null
           thumbnail_url: string | null
@@ -81,6 +83,8 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: never
+          is_paid?: boolean | null
+          price?: number | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null
@@ -99,6 +103,8 @@ export type Database = {
           description?: string | null
           featured?: boolean | null
           id?: never
+          is_paid?: boolean | null
+          price?: number | null
           slug?: string | null
           status?: string | null
           thumbnail_url?: string | null

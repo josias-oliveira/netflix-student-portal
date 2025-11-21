@@ -14,11 +14,15 @@ interface CourseInfoEditorProps {
   thumbnailUrl?: string;
   coverImageUrl?: string;
   featured?: boolean;
+  isPaid?: boolean;
+  price?: number;
   onTitleUpdate: (title: string) => void;
   onDescriptionUpdate: (description: string) => void;
   onThumbnailUpdate: (url: string) => void;
   onCoverImageUpdate: (url: string) => void;
   onFeaturedUpdate: (featured: boolean) => void;
+  onIsPaidUpdate: (isPaid: boolean) => void;
+  onPriceUpdate: (price: number) => void;
 }
 
 export function CourseInfoEditor({
@@ -27,11 +31,15 @@ export function CourseInfoEditor({
   thumbnailUrl,
   coverImageUrl,
   featured,
+  isPaid,
+  price,
   onTitleUpdate,
   onDescriptionUpdate,
   onThumbnailUpdate,
   onCoverImageUpdate,
   onFeaturedUpdate,
+  onIsPaidUpdate,
+  onPriceUpdate,
 }: CourseInfoEditorProps) {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -187,6 +195,45 @@ export function CourseInfoEditor({
             onCheckedChange={onFeaturedUpdate}
           />
         </div>
+
+        <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-0.5">
+            <Label>Curso Pago</Label>
+            <p className="text-sm text-muted-foreground">
+              Marque se este curso requer pagamento para acesso
+            </p>
+          </div>
+          <Switch
+            checked={isPaid || false}
+            onCheckedChange={onIsPaidUpdate}
+          />
+        </div>
+
+        {isPaid && (
+          <div className="space-y-2 p-4 border rounded-lg bg-muted/50">
+            <Label htmlFor="course-price">
+              Preço do Curso *
+            </Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Defina o valor em Reais (R$) que será cobrado pelo acesso ao curso
+            </p>
+            <Input
+              id="course-price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={price || ''}
+              onChange={(e) => onPriceUpdate(parseFloat(e.target.value) || 0)}
+              placeholder="Ex: 197.00"
+              required
+            />
+            {(!price || price <= 0) && (
+              <p className="text-sm text-destructive">
+                ⚠️ Você deve definir um preço maior que zero para cursos pagos
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label>Imagem de Capa (Banner Grande)</Label>
