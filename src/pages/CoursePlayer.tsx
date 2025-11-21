@@ -160,7 +160,7 @@ export default function CoursePlayer() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <header className={`fixed top-0 left-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-300 ${sidebarOpen ? 'right-96' : 'right-0'}`}>
         <div className="px-6 py-3 flex items-center justify-between max-w-screen-2xl mx-auto">
           <div className="flex items-center gap-4">
             <Button
@@ -186,9 +186,9 @@ export default function CoursePlayer() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex pt-16">
+      <div className={`flex-1 flex pt-16 transition-all duration-300 ${sidebarOpen ? 'pr-96' : 'pr-0'}`}>
         {/* Video and Content Area */}
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
             <div className="bg-black">
