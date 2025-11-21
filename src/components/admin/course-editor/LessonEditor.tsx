@@ -2,7 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Download, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, FileText, Download, X, Clock, AlertCircle } from "lucide-react";
 import { VideoUpload } from "./VideoUpload";
 import { Lesson, Material } from "@/types/courseEditor";
 
@@ -101,9 +102,20 @@ export function LessonEditor({
         />
       </div>
 
-      {/* Duration */}
-      <div className="space-y-2">
-        <Label htmlFor="lesson-duration">Duração do Vídeo (minutos)</Label>
+      {/* Duration - MANDATORY FIELD */}
+      <div className="space-y-2 p-4 rounded-lg border-2 border-warning/50 bg-warning/5">
+        <div className="flex items-center gap-2">
+          <Clock className="h-5 w-5 text-warning" />
+          <Label htmlFor="lesson-duration" className="text-base font-semibold">
+            Duração do Vídeo (minutos)
+          </Label>
+          {(!lesson.duration || lesson.duration === 0) && (
+            <Badge variant="destructive" className="ml-auto">
+              <AlertCircle className="h-3 w-3 mr-1" />
+              Obrigatório
+            </Badge>
+          )}
+        </div>
         <Input
           id="lesson-duration"
           type="number"
@@ -111,9 +123,11 @@ export function LessonEditor({
           value={lesson.duration || 0}
           onChange={(e) => onUpdate({ duration: parseInt(e.target.value) || 0 })}
           placeholder="Ex: 15"
+          className={(!lesson.duration || lesson.duration === 0) ? "border-destructive" : ""}
         />
-        <p className="text-xs text-muted-foreground">
-          Informe a duração do vídeo em minutos para calcular a duração total do curso
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          Campo obrigatório para calcular a duração total do curso e liberar certificados
         </p>
       </div>
 

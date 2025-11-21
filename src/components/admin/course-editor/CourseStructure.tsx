@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, GripVertical, ChevronDown, ChevronRight, Trash2, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, GripVertical, ChevronDown, ChevronRight, Trash2, AlertCircle, Clock } from "lucide-react";
 import { Module, Lesson, SelectedItem } from "@/types/courseEditor";
 import { cn } from "@/lib/utils";
 
@@ -60,8 +61,38 @@ export function CourseStructure({
 
   const isCourseSelected = selectedItem.type === 'course';
 
+  // Calculate total duration and lessons without duration
+  const totalMinutes = modules.reduce((total, module) => {
+    return total + module.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+  }, 0);
+  
+  const lessonsWithoutDuration = modules.reduce((count, module) => {
+    return count + module.lessons.filter(l => !l.duration || l.duration === 0).length;
+  }, 0);
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
+      {/* Duration Preview */}
+      <div className="p-3 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
+              {hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`}
+            </span>
+          </div>
+          {lessonsWithoutDuration > 0 && (
+            <Badge variant="destructive" className="text-xs">
+              <AlertCircle className="h-3 w-3 mr-1" />
+              {lessonsWithoutDuration} aula{lessonsWithoutDuration > 1 ? 's' : ''} sem duração
+            </Badge>
+          )}
+        </div>
+      </div>
+
       {/* Course Title */}
       <div 
         className={cn(
@@ -161,6 +192,16 @@ export function CourseStructure({
                     <span className="flex-1 text-sm">
                       Aula {moduleIndex + 1}.{lessonIndex + 1}: {lesson.title || "Sem título"}
                     </span>
+                    {(!lesson.duration || lesson.duration === 0) ? (
+                      <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                        <Clock className="h-3 w-3 mr-0.5" />
+                        ?min
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {lesson.duration}min
+                      </span>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
