@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, List } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
-import { continuingCourses, enrolledCourses, newCourses, recommendedCourses, categories } from "@/data/mockCourses";
 
 export default function CoursePlayer() {
   const { courseId } = useParams();
@@ -17,76 +16,47 @@ export default function CoursePlayer() {
     async function loadCourse() {
       if (!courseId) return;
 
-      // Try to load from Supabase first (numeric IDs)
-      if (!isNaN(Number(courseId))) {
-        try {
-          const { data: courseData, error: courseError } = await supabase
-            .from('courses')
-            .select('*')
-            .eq('id', courseId)
-            .single();
+      // Load from Supabase
+      try {
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('id', courseId)
+          .maybeSingle();
 
-          if (courseError) throw courseError;
+        if (courseError) throw courseError;
 
-          // Load modules and lessons
-          const { data: modules, error: modulesError } = await supabase
-            .from('modules')
-            .select('*')
-            .eq('course_id', courseId)
-            .order('order');
-
-          if (modulesError) throw modulesError;
-
-          if (modules && modules.length > 0) {
-            // Load first lesson
-            const { data: lessons, error: lessonsError } = await supabase
-              .from('lessons')
-              .select('*')
-              .eq('module_id', modules[0].id)
-              .order('order')
-              .limit(1);
-
-            if (!lessonsError && lessons && lessons.length > 0) {
-              setCurrentLesson(lessons[0]);
-            }
-          }
-
-          setCourse(courseData);
+        if (!courseData) {
           setLoading(false);
           return;
-        } catch (error) {
-          console.error('Error loading course from Supabase:', error);
         }
-      }
 
-      // Fallback to mock data
-      const allCourses = [
-        ...continuingCourses,
-        ...enrolledCourses,
-        ...newCourses,
-        ...recommendedCourses,
-        ...categories.flatMap(cat => cat.courses),
-      ];
+        // Load modules and lessons
+        const { data: modules, error: modulesError } = await supabase
+          .from('modules')
+          .select('*')
+          .eq('course_id', courseId)
+          .order('order');
 
-      const mockCourse = allCourses.find(c => c.id === courseId);
-      
-      if (mockCourse) {
-        setCourse({
-          title: mockCourse.title,
-          description: mockCourse.description,
-          instructor: mockCourse.instructor,
-          duration: mockCourse.duration,
-          totalLessons: mockCourse.totalLessons,
-          progress: mockCourse.progress,
-        });
-        
-        // For mock course with ID "1", set a lesson with video URL
-        if (courseId === "1") {
-          setCurrentLesson({
-            title: "Aula 1: Introdução",
-            video_url: "https://player-vz-24a43ece-cb0.tv.pandavideo.com.br/embed/?v=70b7c486-a50f-46a8-bbbf-8689dbaa4608",
-          });
+        if (modulesError) throw modulesError;
+
+        if (modules && modules.length > 0) {
+          // Load first lesson
+          const { data: lessons, error: lessonsError } = await supabase
+            .from('lessons')
+            .select('*')
+            .eq('module_id', modules[0].id)
+            .order('order')
+            .limit(1);
+
+          if (!lessonsError && lessons && lessons.length > 0) {
+            setCurrentLesson(lessons[0]);
+          }
         }
+
+        setCourse(courseData);
+      } catch (error) {
+        console.error('Error loading course from Supabase:', error);
       }
       
       setLoading(false);
