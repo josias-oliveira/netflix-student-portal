@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, List, X, ChevronRight, ChevronLeft } from "lucide-react";
+import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -189,7 +189,7 @@ export default function CoursePlayer() {
       <div className="flex-1 flex pt-16">
         {/* Video and Content Area */}
         <div className="flex-1 flex justify-center">
-          <div className={`w-full transition-all duration-300 ${sidebarOpen ? 'max-w-5xl' : 'max-w-7xl'}`}>
+          <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
             <div className="bg-black">
               {currentLesson && (currentLesson.video_url || currentLesson.streaming_url) ? (
@@ -205,46 +205,56 @@ export default function CoursePlayer() {
             </div>
 
             {/* Course Info */}
-            <div className="px-8 py-8 bg-background">
-              <div className="mb-4">
-                <p className="text-sm text-blue-600 font-medium mb-2">{course.title}</p>
-                {currentLesson && (
-                  <h2 className="text-3xl font-bold text-foreground mb-6">
-                    {currentLesson.title}
-                  </h2>
-                )}
-              </div>
+            <div className="px-8 py-6 bg-background">
+              {/* Title and Navigation Row */}
+              <div className="flex items-start justify-between mb-8">
+                {/* Left: Course and Lesson Title */}
+                <div className="flex-1">
+                  <p className="text-sm text-blue-600 font-medium mb-2">{course.title}</p>
+                  {currentLesson && (
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {currentLesson.title}
+                    </h2>
+                  )}
+                </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex items-center gap-3 mb-8">
-                <Button
-                  variant="outline"
-                  onClick={handlePreviousLesson}
-                  disabled={currentIndex === 0}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>Anterior</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleNextLesson}
-                  disabled={currentIndex === allLessons.length - 1}
-                  className="flex items-center gap-2"
-                >
-                  <span>Próxima</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                {/* Right: Theme Icon and Navigation */}
+                <div className="flex items-center gap-3 ml-6">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground"
+                  >
+                    <Sun className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handlePreviousLesson}
+                    disabled={currentIndex === 0}
+                    className="flex items-center gap-1"
+                    size="sm"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span>Anterior</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleNextLesson}
+                    disabled={currentIndex === allLessons.length - 1}
+                    className="flex items-center gap-1"
+                    size="sm"
+                  >
+                    <span>Próxima</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Sections */}
               <div className="space-y-8">
                 {/* Comments Section */}
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-foreground">Comentários</h3>
-                    <span className="text-sm text-muted-foreground">0%</span>
-                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-4">Comentários</h3>
                   <div className="flex gap-4">
                     <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
                     <div className="flex-1">
@@ -262,9 +272,9 @@ export default function CoursePlayer() {
                 </div>
 
                 {/* Rating Section */}
-                <div className="flex items-start justify-between pt-8 border-t border-border">
+                <div className="flex items-center justify-between pt-8 border-t border-border">
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Avaliação</h3>
+                    <h3 className="text-xl font-semibold text-foreground mb-3">Avaliação</h3>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -276,7 +286,10 @@ export default function CoursePlayer() {
                       ))}
                     </div>
                   </div>
-                  <Button className="bg-green-500 hover:bg-green-600 text-white">
+                  <Button 
+                    variant="outline"
+                    className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
+                  >
                     Marcar aula como concluída
                   </Button>
                 </div>
