@@ -5,7 +5,8 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
   // Save or update course
   const courseData = {
     title: course.title,
-    description: null,
+    description: course.description || null,
+    thumbnail_url: course.thumbnail_url || null,
     ...(status && { status }),
   };
 
@@ -157,6 +158,8 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
   const courseStructure: CourseStructure = {
     id: courseId.toString(),
     title: course.title,
+    description: course.description || undefined,
+    thumbnail_url: course.thumbnail_url || undefined,
     status: course.status as 'draft' | 'published',
     modules: [],
   };

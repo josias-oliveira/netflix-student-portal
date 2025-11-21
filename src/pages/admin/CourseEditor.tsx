@@ -33,6 +33,8 @@ export default function CourseEditor() {
     return {
       id: "new",
       title: searchParams.get('title') || "Novo Curso",
+      description: undefined,
+      thumbnail_url: undefined,
       status: 'draft',
       modules: [
         {
@@ -80,6 +82,11 @@ export default function CourseEditor() {
 
   const handleCourseEdit = (title: string) => {
     setCourse(prev => prev ? ({ ...prev, title }) : null);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleCourseUpdate = (updates: Partial<CourseStructureType>) => {
+    setCourse(prev => prev ? ({ ...prev, ...updates }) : null);
     setHasUnsavedChanges(true);
   };
 
@@ -435,7 +442,9 @@ export default function CourseEditor() {
         <div className="flex-1 bg-background">
           <ContentEditor
             selectedItem={selectedItem}
+            course={course}
             modules={course.modules}
+            onCourseUpdate={handleCourseUpdate}
             onModuleUpdate={handleModuleUpdate}
             onLessonUpdate={handleLessonUpdate}
             onMaterialAdd={handleMaterialAdd}

@@ -27,11 +27,14 @@ export interface Module {
 export interface CourseStructure {
   id: string;
   title: string;
+  description?: string;
+  thumbnail_url?: string;
   status?: 'draft' | 'published';
   modules: Module[];
 }
 
 export type SelectedItem = 
+  | { type: 'course' }
   | { type: 'module'; moduleId: string }
   | { type: 'lesson'; moduleId: string; lessonId: string }
   | { type: 'none' };
