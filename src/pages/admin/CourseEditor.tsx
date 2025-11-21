@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Eye, CheckCircle } from "lucide-react";
 import { CourseStructure } from "@/components/admin/course-editor/CourseStructure";
@@ -7,10 +7,14 @@ import { ContentEditor } from "@/components/admin/course-editor/ContentEditor";
 import { CoursePreviewModal } from "@/components/admin/course-editor/CoursePreviewModal";
 import { CourseStructure as CourseStructureType, Module, Lesson, SelectedItem, Material } from "@/types/courseEditor";
 import { useToast } from "@/hooks/use-toast";
+import { saveCourse, loadCourse } from "@/services/courseService";
 
 export default function CourseEditor() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [course, setCourse] = useState<CourseStructureType>({
     id: "new",
@@ -34,6 +38,24 @@ export default function CourseEditor() {
 
   const [selectedItem, setSelectedItem] = useState<SelectedItem>({ type: 'none' });
   const [showPreview, setShowPreview] = useState(false);
+
+  // Load course if editing existing one
+  useEffect(() => {
+    if (id && id !== 'new') {
+      setIsLoading(true);
+      loadCourse(parseInt(id))
+        .then(setCourse)
+        .catch((error) => {
+          console.error('Error loading course:', error);
+          toast({
+            title: "Erro ao carregar curso",
+            description: "Não foi possível carregar o curso",
+            variant: "destructive",
+          });
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [id, toast]);
 
   const handleCourseEdit = (title: string) => {
     setCourse(prev => ({ ...prev, title }));
@@ -186,23 +208,58 @@ export default function CourseEditor() {
     }));
   };
 
-  const handleSaveDraft = () => {
-    toast({
-      title: "Rascunho salvo",
-      description: "Suas alterações foram salvas automaticamente",
-    });
+  const handleSaveDraft = async () => {
+    setIsSaving(true);
+    try {
+      await saveCourse(course);
+      toast({
+        title: "Rascunho salvo",
+        description: "Suas alterações foram salvas com sucesso",
+      });
+    } catch (error) {
+      console.error('Error saving course:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as alterações",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePreview = () => {
     setShowPreview(true);
   };
 
-  const handlePublish = () => {
-    toast({
-      title: "Curso publicado!",
-      description: "O curso está disponível para os alunos",
-    });
+  const handlePublish = async () => {
+    setIsSaving(true);
+    try {
+      await saveCourse(course);
+      // TODO: Update course status to 'published' in a separate call
+      toast({
+        title: "Curso publicado!",
+        description: "O curso foi salvo e está disponível para os alunos",
+      });
+    } catch (error) {
+      console.error('Error publishing course:', error);
+      toast({
+        title: "Erro ao publicar",
+        description: "Não foi possível publicar o curso",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Carregando curso...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -230,17 +287,31 @@ export default function CourseEditor() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleSaveDraft}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleSaveDraft}
+            disabled={isSaving}
+          >
             <Save className="h-4 w-4 mr-2" />
-            Salvar Rascunho
+            {isSaving ? "Salvando..." : "Salvar Alterações"}
           </Button>
-          <Button variant="outline" size="sm" onClick={handlePreview}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handlePreview}
+            disabled={isSaving}
+          >
             <Eye className="h-4 w-4 mr-2" />
             Visualizar
           </Button>
-          <Button size="sm" onClick={handlePublish}>
+          <Button 
+            size="sm" 
+            onClick={handlePublish}
+            disabled={isSaving}
+          >
             <CheckCircle className="h-4 w-4 mr-2" />
-            Publicar Curso
+            {isSaving ? "Publicando..." : "Publicar Curso"}
           </Button>
         </div>
       </header>
