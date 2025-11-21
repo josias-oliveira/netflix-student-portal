@@ -145,7 +145,7 @@ export default function Courses() {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    {course.modules?.length || 0}
+                    {course.modules || 0}
                   </TableCell>
                   <TableCell className="text-center">
                     {course.totalLessons || 0}
