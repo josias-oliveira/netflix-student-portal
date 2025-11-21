@@ -31,6 +31,7 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPla
           
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
             console.log('HLS manifest loaded');
+            video.play().catch(err => console.log('Autoplay prevented:', err));
           });
 
           hls.on(Hls.Events.ERROR, (event, data) => {
@@ -74,6 +75,8 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPla
       controlsList="nodownload"
       playsInline
       preload="metadata"
+      autoPlay
+      muted
     >
       Seu navegador não suporta a reprodução de vídeo.
     </video>
