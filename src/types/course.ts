@@ -10,6 +10,8 @@ export interface Course {
   isEnrolled?: boolean;
   isNew?: boolean;
   isPremium?: boolean;
+  isPaid?: boolean;
+  price?: number;
   comingSoon?: boolean;
   totalLessons?: number;
   completedLessons?: number;
