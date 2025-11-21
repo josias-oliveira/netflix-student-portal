@@ -6,6 +6,7 @@ import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLessonProgress";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface Lesson {
   id: number;
@@ -33,8 +34,33 @@ export default function CoursePlayer() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
   
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
+
+  // Check authentication
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (!user) {
+        setShowAuthModal(true);
+      }
+    };
+    
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        setShowAuthModal(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     async function loadCourse() {
@@ -389,6 +415,16 @@ export default function CoursePlayer() {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

@@ -34,6 +34,8 @@ export interface CourseStructure {
   cover_image_url?: string;
   featured?: boolean;
   status?: 'draft' | 'published';
+  is_paid?: boolean;
+  price?: number;
   certificate_enabled?: boolean;
   certificate_template_url?: string;
   certificate_text_x?: number;
