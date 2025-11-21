@@ -1,10 +1,13 @@
-import { Module, Lesson, SelectedItem } from "@/types/courseEditor";
+import { Module, Lesson, SelectedItem, CourseStructure } from "@/types/courseEditor";
 import { LessonEditor } from "./LessonEditor";
 import { ModuleEditor } from "./ModuleEditor";
+import { CourseInfoEditor } from "./CourseInfoEditor";
 
 interface ContentEditorProps {
   selectedItem: SelectedItem;
+  course: CourseStructure;
   modules: Module[];
+  onCourseUpdate: (updates: Partial<CourseStructure>) => void;
   onModuleUpdate: (moduleId: string, updates: Partial<Module>) => void;
   onLessonUpdate: (moduleId: string, lessonId: string, updates: Partial<Lesson>) => void;
   onMaterialAdd: (moduleId: string, lessonId: string) => void;
@@ -13,7 +16,9 @@ interface ContentEditorProps {
 
 export function ContentEditor({
   selectedItem,
+  course,
   modules,
+  onCourseUpdate,
   onModuleUpdate,
   onLessonUpdate,
   onMaterialAdd,
@@ -24,11 +29,28 @@ export function ContentEditor({
       <div className="h-full flex items-center justify-center">
         <div className="text-center space-y-2">
           <p className="text-lg font-medium text-muted-foreground">
-            Selecione um módulo ou aula para editar
+            Clique no título do curso, em um módulo ou aula para editar
           </p>
           <p className="text-sm text-muted-foreground">
-            Clique na estrutura à esquerda para começar
+            Use a estrutura à esquerda para navegar
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedItem.type === 'course') {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="max-w-3xl mx-auto p-6">
+          <CourseInfoEditor
+            courseTitle={course.title}
+            courseDescription={course.description}
+            thumbnailUrl={course.thumbnail_url}
+            onTitleUpdate={(title) => onCourseUpdate({ title })}
+            onDescriptionUpdate={(description) => onCourseUpdate({ description })}
+            onThumbnailUpdate={(thumbnail_url) => onCourseUpdate({ thumbnail_url })}
+          />
         </div>
       </div>
     );

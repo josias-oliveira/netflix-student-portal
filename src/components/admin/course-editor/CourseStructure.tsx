@@ -58,14 +58,26 @@ export function CourseStructure({
 
   const isDefaultTitle = courseTitle === "Novo Curso" || !courseTitle.trim();
 
+  const isCourseSelected = selectedItem.type === 'course';
+
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Course Title */}
-      <div className="p-4 border-b border-border space-y-2">
+      <div 
+        className={cn(
+          "p-4 border-b border-border space-y-2 cursor-pointer transition-colors",
+          isCourseSelected ? "bg-primary/10" : "hover:bg-muted"
+        )}
+        onClick={() => onSelect({ type: 'course' })}
+      >
         <div className="relative">
           <Input
             value={courseTitle}
-            onChange={(e) => onCourseEdit(e.target.value)}
+            onChange={(e) => {
+              e.stopPropagation();
+              onCourseEdit(e.target.value);
+            }}
+            onClick={(e) => e.stopPropagation()}
             className={cn(
               "text-lg font-bold pr-10",
               isDefaultTitle && "border-destructive focus-visible:ring-destructive"
@@ -82,6 +94,9 @@ export function CourseStructure({
             Defina um título para o curso antes de salvar
           </p>
         )}
+        <p className="text-xs text-muted-foreground">
+          Clique aqui para editar informações e capa do curso
+        </p>
       </div>
 
       {/* Structure List */}
