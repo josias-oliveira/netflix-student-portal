@@ -24,6 +24,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Courses() {
   const { courses, loading, deleteCourse } = useAdminCourses();
@@ -31,6 +41,8 @@ export default function Courses() {
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<number | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newCourseTitle, setNewCourseTitle] = useState("");
 
   const handleDeleteClick = (courseId: number) => {
     setCourseToDelete(courseId);
@@ -59,6 +71,24 @@ export default function Courses() {
     setCourseToDelete(null);
   };
 
+  const handleCreateCourse = () => {
+    const trimmedTitle = newCourseTitle.trim();
+    
+    if (!trimmedTitle) {
+      toast({
+        title: "Título obrigatório",
+        description: "Por favor, digite um título para o curso",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Navigate to editor with title as query param
+    navigate(`/admin/cursos/novo?title=${encodeURIComponent(trimmedTitle)}`);
+    setCreateDialogOpen(false);
+    setNewCourseTitle("");
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -78,7 +108,7 @@ export default function Courses() {
         <Button
           variant="outline"
           className="gap-2"
-          onClick={() => navigate("/admin/cursos/novo")}
+          onClick={() => setCreateDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
           Adicionar Novo Curso
@@ -149,6 +179,42 @@ export default function Courses() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Criar Novo Curso</DialogTitle>
+            <DialogDescription>
+              Digite o título do curso que você deseja criar
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="course-title">Título do Curso</Label>
+              <Input
+                id="course-title"
+                placeholder="Ex: Workshop de Apresentações"
+                value={newCourseTitle}
+                onChange={(e) => setNewCourseTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCreateCourse();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCreateCourse}>
+              Criar Curso
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

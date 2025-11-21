@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, GripVertical, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
+import { Plus, GripVertical, ChevronDown, ChevronRight, Trash2, AlertCircle } from "lucide-react";
 import { Module, Lesson, SelectedItem } from "@/types/courseEditor";
 import { cn } from "@/lib/utils";
 
@@ -56,16 +56,32 @@ export function CourseStructure({
            selectedItem.lessonId === lessonId;
   };
 
+  const isDefaultTitle = courseTitle === "Novo Curso" || !courseTitle.trim();
+
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Course Title */}
-      <div className="p-4 border-b border-border">
-        <Input
-          value={courseTitle}
-          onChange={(e) => onCourseEdit(e.target.value)}
-          className="text-lg font-bold"
-          placeholder="Título do Curso"
-        />
+      <div className="p-4 border-b border-border space-y-2">
+        <div className="relative">
+          <Input
+            value={courseTitle}
+            onChange={(e) => onCourseEdit(e.target.value)}
+            className={cn(
+              "text-lg font-bold pr-10",
+              isDefaultTitle && "border-destructive focus-visible:ring-destructive"
+            )}
+            placeholder="Digite o título do curso..."
+          />
+          {isDefaultTitle && (
+            <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
+          )}
+        </div>
+        {isDefaultTitle && (
+          <p className="text-xs text-destructive flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Defina um título para o curso antes de salvar
+          </p>
+        )}
       </div>
 
       {/* Structure List */}
