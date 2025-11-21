@@ -76,6 +76,44 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_materials: {
+        Row: {
+          created_at: string | null
+          id: number
+          lesson_id: number
+          name: string
+          size: string | null
+          type: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          lesson_id: number
+          name: string
+          size?: string | null
+          type?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          lesson_id?: number
+          name?: string
+          size?: string | null
+          type?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_materials_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           completed_at: string | null
@@ -108,25 +146,31 @@ export type Database = {
       lessons: {
         Row: {
           created_at: string | null
+          description: string | null
           id: number
           module_id: number
           order: number
+          streaming_url: string | null
           title: string
           video_url: string | null
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           id?: never
           module_id: number
           order: number
+          streaming_url?: string | null
           title: string
           video_url?: string | null
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           id?: never
           module_id?: number
           order?: number
+          streaming_url?: string | null
           title?: string
           video_url?: string | null
         }
@@ -144,6 +188,7 @@ export type Database = {
         Row: {
           course_id: number
           created_at: string | null
+          description: string | null
           id: number
           order: number
           title: string
@@ -151,6 +196,7 @@ export type Database = {
         Insert: {
           course_id: number
           created_at?: string | null
+          description?: string | null
           id?: never
           order: number
           title: string
@@ -158,6 +204,7 @@ export type Database = {
         Update: {
           course_id?: number
           created_at?: string | null
+          description?: string | null
           id?: never
           order?: number
           title?: string
