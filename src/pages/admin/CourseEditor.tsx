@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Eye, CheckCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Save, Eye } from "lucide-react";
 import { CourseStructure } from "@/components/admin/course-editor/CourseStructure";
 import { ContentEditor } from "@/components/admin/course-editor/ContentEditor";
 import { CoursePreviewModal } from "@/components/admin/course-editor/CoursePreviewModal";
 import { CourseStructure as CourseStructureType, Module, Lesson, SelectedItem, Material } from "@/types/courseEditor";
 import { useToast } from "@/hooks/use-toast";
-import { saveCourse, loadCourse } from "@/services/courseService";
+import { saveCourse, loadCourse, updateCourseStatus } from "@/services/courseService";
 
 export default function CourseEditor() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function CourseEditor() {
   const [course, setCourse] = useState<CourseStructureType>({
     id: "new",
     title: "Novo Curso",
+    status: 'draft',
     modules: [
       {
         id: "module-1",
@@ -35,6 +38,8 @@ export default function CourseEditor() {
       },
     ],
   });
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const [selectedItem, setSelectedItem] = useState<SelectedItem>({ type: 'none' });
   const [showPreview, setShowPreview] = useState(false);
@@ -59,6 +64,7 @@ export default function CourseEditor() {
 
   const handleCourseEdit = (title: string) => {
     setCourse(prev => ({ ...prev, title }));
+    setHasUnsavedChanges(true);
   };
 
   const handleModuleAdd = () => {
@@ -72,6 +78,7 @@ export default function CourseEditor() {
       ...prev,
       modules: [...prev.modules, newModule],
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleModuleUpdate = (moduleId: string, updates: Partial<Module>) => {
@@ -81,6 +88,7 @@ export default function CourseEditor() {
         m.id === moduleId ? { ...m, ...updates } : m
       ),
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleModuleDelete = (moduleId: string) => {
@@ -89,6 +97,7 @@ export default function CourseEditor() {
       modules: prev.modules.filter(m => m.id !== moduleId),
     }));
     setSelectedItem({ type: 'none' });
+    setHasUnsavedChanges(true);
   };
 
   const handleLessonAdd = (moduleId: string) => {
@@ -111,6 +120,7 @@ export default function CourseEditor() {
           : m
       ),
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleLessonUpdate = (
@@ -131,6 +141,7 @@ export default function CourseEditor() {
           : m
       ),
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleLessonDelete = (moduleId: string, lessonId: string) => {
@@ -146,6 +157,7 @@ export default function CourseEditor() {
       ),
     }));
     setSelectedItem({ type: 'none' });
+    setHasUnsavedChanges(true);
   };
 
   const handleMaterialAdd = (moduleId: string, lessonId: string) => {
@@ -181,6 +193,7 @@ export default function CourseEditor() {
       title: "Material adicionado",
       description: "O arquivo foi anexado à aula",
     });
+    setHasUnsavedChanges(true);
   };
 
   const handleMaterialRemove = (
@@ -206,14 +219,22 @@ export default function CourseEditor() {
           : m
       ),
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
-      await saveCourse(course);
+      const savedCourseId = await saveCourse(course, course.status);
+      
+      // Update course ID if it was new
+      if (course.id === 'new') {
+        setCourse(prev => ({ ...prev, id: savedCourseId.toString() }));
+      }
+      
+      setHasUnsavedChanges(false);
       toast({
-        title: "Rascunho salvo",
+        title: "Alterações salvas",
         description: "Suas alterações foram salvas com sucesso",
       });
     } catch (error) {
@@ -232,20 +253,35 @@ export default function CourseEditor() {
     setShowPreview(true);
   };
 
-  const handlePublish = async () => {
+  const handleTogglePublish = async (checked: boolean) => {
+    const newStatus = checked ? 'published' : 'draft';
+    
+    // Se o curso é novo, precisa salvar primeiro
+    if (course.id === 'new' || hasUnsavedChanges) {
+      toast({
+        title: "Salve o curso primeiro",
+        description: "Você precisa salvar as alterações antes de publicar",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await saveCourse(course);
-      // TODO: Update course status to 'published' in a separate call
+      await updateCourseStatus(parseInt(course.id), newStatus);
+      setCourse(prev => ({ ...prev, status: newStatus }));
+      
       toast({
-        title: "Curso publicado!",
-        description: "O curso foi salvo e está disponível para os alunos",
+        title: checked ? "Curso publicado!" : "Curso despublicado",
+        description: checked 
+          ? "O curso agora está visível para os alunos"
+          : "O curso foi ocultado dos alunos",
       });
     } catch (error) {
-      console.error('Error publishing course:', error);
+      console.error('Error updating course status:', error);
       toast({
-        title: "Erro ao publicar",
-        description: "Não foi possível publicar o curso",
+        title: "Erro ao atualizar status",
+        description: "Não foi possível atualizar o status do curso",
         variant: "destructive",
       });
     } finally {
@@ -286,16 +322,19 @@ export default function CourseEditor() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleSaveDraft}
-            disabled={isSaving}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {isSaving ? "Salvando..." : "Salvar Alterações"}
-          </Button>
+        <div className="flex items-center gap-3">
+          {hasUnsavedChanges && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSaveDraft}
+              disabled={isSaving}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? "Salvando..." : "Salvar Alterações"}
+            </Button>
+          )}
+          
           <Button 
             variant="outline" 
             size="sm" 
@@ -305,14 +344,21 @@ export default function CourseEditor() {
             <Eye className="h-4 w-4 mr-2" />
             Visualizar
           </Button>
-          <Button 
-            size="sm" 
-            onClick={handlePublish}
-            disabled={isSaving}
-          >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            {isSaving ? "Publicando..." : "Publicar Curso"}
-          </Button>
+
+          <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-border bg-background">
+            <Switch
+              id="publish-toggle"
+              checked={course.status === 'published'}
+              onCheckedChange={handleTogglePublish}
+              disabled={isSaving || course.id === 'new' || hasUnsavedChanges}
+            />
+            <Label 
+              htmlFor="publish-toggle" 
+              className="text-sm font-medium cursor-pointer"
+            >
+              {course.status === 'published' ? 'Publicado' : 'Rascunho'}
+            </Label>
+          </div>
         </div>
       </header>
 

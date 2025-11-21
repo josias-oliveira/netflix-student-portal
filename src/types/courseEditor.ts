@@ -27,6 +27,7 @@ export interface Module {
 export interface CourseStructure {
   id: string;
   title: string;
+  status?: 'draft' | 'published';
   modules: Module[];
 }
 

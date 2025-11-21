@@ -1,12 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CourseStructure, Module, Lesson, Material } from "@/types/courseEditor";
 
-export async function saveCourse(course: CourseStructure): Promise<void> {
+export async function saveCourse(course: CourseStructure, status?: 'draft' | 'published'): Promise<number> {
   // Save or update course
   const courseData = {
     title: course.title,
     description: null,
-    status: 'draft',
+    ...(status && { status }),
   };
 
   let courseId: number;
@@ -118,10 +118,21 @@ export async function saveCourse(course: CourseStructure): Promise<void> {
           .from('lesson_materials')
           .insert(materialsData);
 
-        if (materialsError) throw materialsError;
-      }
+      if (materialsError) throw materialsError;
     }
   }
+  }
+
+  return courseId;
+}
+
+export async function updateCourseStatus(courseId: number, status: 'draft' | 'published'): Promise<void> {
+  const { error } = await supabase
+    .from('courses')
+    .update({ status })
+    .eq('id', courseId);
+
+  if (error) throw error;
 }
 
 export async function loadCourse(courseId: number): Promise<CourseStructure> {
@@ -146,6 +157,7 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
   const courseStructure: CourseStructure = {
     id: courseId.toString(),
     title: course.title,
+    status: course.status as 'draft' | 'published',
     modules: [],
   };
 
