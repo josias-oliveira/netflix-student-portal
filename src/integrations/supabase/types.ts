@@ -51,6 +51,13 @@ export type Database = {
       }
       courses: {
         Row: {
+          certificate_enabled: boolean | null
+          certificate_font_color: string | null
+          certificate_font_size: number | null
+          certificate_instructor_name: string | null
+          certificate_template_url: string | null
+          certificate_text_x: number | null
+          certificate_text_y: number | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
@@ -62,6 +69,13 @@ export type Database = {
           title: string
         }
         Insert: {
+          certificate_enabled?: boolean | null
+          certificate_font_color?: string | null
+          certificate_font_size?: number | null
+          certificate_instructor_name?: string | null
+          certificate_template_url?: string | null
+          certificate_text_x?: number | null
+          certificate_text_y?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -73,6 +87,13 @@ export type Database = {
           title: string
         }
         Update: {
+          certificate_enabled?: boolean | null
+          certificate_font_color?: string | null
+          certificate_font_size?: number | null
+          certificate_instructor_name?: string | null
+          certificate_template_url?: string | null
+          certificate_text_x?: number | null
+          certificate_text_y?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null

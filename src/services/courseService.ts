@@ -10,6 +10,13 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
     thumbnail_url: course.thumbnail_url || null,
     cover_image_url: course.cover_image_url || null,
     featured: course.featured || false,
+    certificate_enabled: course.certificate_enabled || false,
+    certificate_template_url: course.certificate_template_url || null,
+    certificate_text_x: course.certificate_text_x || 50,
+    certificate_text_y: course.certificate_text_y || 50,
+    certificate_font_size: course.certificate_font_size || 48,
+    certificate_font_color: course.certificate_font_color || '#000000',
+    certificate_instructor_name: course.certificate_instructor_name || null,
     ...(status && { status }),
   };
 
@@ -168,6 +175,13 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
     cover_image_url: course.cover_image_url || undefined,
     featured: course.featured || false,
     status: course.status as 'draft' | 'published',
+    certificate_enabled: course.certificate_enabled || false,
+    certificate_template_url: course.certificate_template_url || undefined,
+    certificate_text_x: course.certificate_text_x || 50,
+    certificate_text_y: course.certificate_text_y || 50,
+    certificate_font_size: course.certificate_font_size || 48,
+    certificate_font_color: course.certificate_font_color || '#000000',
+    certificate_instructor_name: course.certificate_instructor_name || undefined,
     modules: [],
   };
 
