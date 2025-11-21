@@ -9,7 +9,7 @@ export interface CourseData {
   thumbnail_url: string | null;
   status: string | null;
   created_at: string | null;
-  modules?: any[];
+  modules?: number;
   totalLessons?: number;
   duration?: string;
   progress?: number;
@@ -72,7 +72,10 @@ export function useAdminCourses() {
 
         // Enrich courses with module and lesson counts
         const enrichedCourses = await Promise.all(
-          (data || []).map(async (course) => {
+          (data || []).map(async (course: any) => {
+            // Extract module count from the nested structure
+            const moduleCount = course.modules?.[0]?.count || 0;
+            
             const { count: lessonCount } = await supabase
               .from('lessons')
               .select('id', { count: 'exact', head: true })
@@ -85,6 +88,7 @@ export function useAdminCourses() {
 
             return {
               ...course,
+              modules: moduleCount,
               totalLessons: lessonCount || 0,
             };
           })
