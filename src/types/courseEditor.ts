@@ -7,6 +7,7 @@ export interface Lesson {
   uploadProgress?: number;
   description: string;
   materials: Material[];
+  duration?: number; // Duration in minutes
 }
 
 export interface Material {

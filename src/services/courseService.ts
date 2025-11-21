@@ -101,6 +101,7 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
           description: lesson.description,
           video_url: lesson.videoUrl || null,
           streaming_url: lesson.streamingUrl || null,
+          duration: lesson.duration || 0,
           order: j + 1,
         })
         .select('id')
@@ -197,6 +198,7 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
         description: lesson.description || '',
         videoUrl: lesson.video_url || undefined,
         streamingUrl: lesson.streaming_url || undefined,
+        duration: lesson.duration || 0,
         materials: (materials || []).map(m => ({
           id: m.id.toString(),
           name: m.name,
