@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -14,13 +14,14 @@ import { saveCourse, loadCourse, updateCourseStatus } from "@/services/courseSer
 export default function CourseEditor() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [course, setCourse] = useState<CourseStructureType>({
     id: "new",
-    title: "Novo Curso",
+    title: searchParams.get('title') || "Novo Curso",
     status: 'draft',
     modules: [
       {
@@ -223,6 +224,17 @@ export default function CourseEditor() {
   };
 
   const handleSaveDraft = async () => {
+    // Validação do título
+    const trimmedTitle = course.title.trim();
+    if (!trimmedTitle || trimmedTitle === "Novo Curso") {
+      toast({
+        title: "Título inválido",
+        description: "Por favor, defina um título válido para o curso antes de salvar",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const savedCourseId = await saveCourse(course, course.status);
