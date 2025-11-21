@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +28,11 @@ export function VideoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [urlInput, setUrlInput] = useState(streamingUrl || "");
+
+  // Sync local state with props
+  useEffect(() => {
+    setUrlInput(streamingUrl || "");
+  }, [streamingUrl]);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
