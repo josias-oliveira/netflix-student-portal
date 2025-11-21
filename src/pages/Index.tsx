@@ -1,26 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { HeroBanner } from "@/components/course/HeroBanner";
 import { CourseShelf } from "@/components/course/CourseShelf";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { CourseInfoModal } from "@/components/course/CourseInfoModal";
-import {
-  featuredCourse,
-  newCourses,
-  recommendedCourses,
-  categories,
-} from "@/data/mockCourses";
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useCourses } from "@/hooks/useCourses";
 
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { courses, loading } = useCourses();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [courseInfoModalOpen, setCourseInfoModalOpen] = useState(false);
   const [pendingCourse, setPendingCourse] = useState<Course | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
+  // Convert database courses to Course type
+  const convertedCourses: Course[] = courses.map(course => ({
+    id: course.id.toString(),
+    title: course.title,
+    description: course.description || '',
+    thumbnail: course.thumbnail_url || '/placeholder.svg',
+    instructor: 'BTX Academy',
+    duration: course.duration || 'Duração não especificada',
+    category: 'Cursos',
+    totalLessons: course.totalLessons,
+    progress: course.progress,
+  }));
+
+  const featuredCourse = convertedCourses[0] || null;
 
   const handleCourseClick = (course: Course) => {
     if (!isAuthenticated) {
@@ -60,39 +71,33 @@ const Index = () => {
       
       {/* Hero Banner */}
       <div className="pt-16">
-        <HeroBanner
-          course={featuredCourse}
-          onPlay={() => handleCourseClick(featuredCourse)}
-          onInfo={() => handleCourseInfo(featuredCourse)}
-        />
+        {loading ? (
+          <div className="h-[70vh] flex items-center justify-center">
+            <p className="text-muted-foreground">Carregando cursos...</p>
+          </div>
+        ) : featuredCourse ? (
+          <HeroBanner
+            course={featuredCourse}
+            onPlay={() => handleCourseClick(featuredCourse)}
+            onInfo={() => handleCourseInfo(featuredCourse)}
+          />
+        ) : (
+          <div className="h-[70vh] flex items-center justify-center">
+            <p className="text-muted-foreground">Nenhum curso disponível</p>
+          </div>
+        )}
       </div>
 
       {/* Course Shelves */}
-      <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
-        {/* New Courses */}
-        <CourseShelf
-          title="Novos Cursos"
-          courses={newCourses}
-          onCourseClick={handleCourseClick}
-        />
-
-        {/* Recommended */}
-        <CourseShelf
-          title="Recomendados para Você"
-          courses={recommendedCourses}
-          onCourseClick={handleCourseClick}
-        />
-
-        {/* Categories */}
-        {categories.map((category) => (
+      {!loading && convertedCourses.length > 0 && (
+        <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
           <CourseShelf
-            key={category.id}
-            title={category.name}
-            courses={category.courses}
+            title="Todos os Cursos"
+            courses={convertedCourses}
             onCourseClick={handleCourseClick}
           />
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Footer spacing */}
       <div className="h-20" />

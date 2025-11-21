@@ -1,15 +1,40 @@
 import { Header } from "@/components/layout/Header";
 import { CourseCard } from "@/components/course/CourseCard";
-import { enrolledCourses } from "@/data/mockCourses";
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
+import { useEnrolledCourses } from "@/hooks/useCourses";
 
 const MeusCursos = () => {
   const navigate = useNavigate();
+  const { courses, loading } = useEnrolledCourses();
 
   const handleCourseClick = (course: Course) => {
     navigate(`/curso/${course.id}`);
   };
+
+  // Convert database courses to Course type
+  const convertedCourses: Course[] = courses.map(course => ({
+    id: course.id.toString(),
+    title: course.title,
+    description: course.description || '',
+    thumbnail: course.thumbnail_url || '/placeholder.svg',
+    instructor: 'BTX Academy',
+    duration: course.duration || 'Duração não especificada',
+    category: 'Meus Cursos',
+    totalLessons: course.totalLessons,
+    progress: course.progress,
+  }));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-24 pb-12 container mx-auto px-4 sm:px-8">
+          <p className="text-muted-foreground">Carregando seus cursos...</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,18 +47,24 @@ const MeusCursos = () => {
               Meus Cursos
             </h1>
             <p className="text-muted-foreground">
-              {enrolledCourses.length} curso{enrolledCourses.length !== 1 ? "s" : ""} matriculado
-              {enrolledCourses.length !== 1 ? "s" : ""}
+              {convertedCourses.length} curso{convertedCourses.length !== 1 ? "s" : ""} matriculado
+              {convertedCourses.length !== 1 ? "s" : ""}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {enrolledCourses.map((course) => (
-              <div key={course.id} className="w-full">
-                <CourseCard course={course} onClick={() => handleCourseClick(course)} />
-              </div>
-            ))}
-          </div>
+          {convertedCourses.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {convertedCourses.map((course) => (
+                <div key={course.id} className="w-full">
+                  <CourseCard course={course} onClick={() => handleCourseClick(course)} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Você ainda não está matriculado em nenhum curso.</p>
+            </div>
+          )}
         </div>
       </main>
     </div>
