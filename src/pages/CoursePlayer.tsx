@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun } from "lucide-react";
+import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLessonProgress";
 
 interface Lesson {
   id: number;
@@ -31,6 +32,9 @@ export default function CoursePlayer() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  
+  const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
 
   useEffect(() => {
     async function loadCourse() {
@@ -88,6 +92,12 @@ export default function CoursePlayer() {
             setCurrentLesson(modulesWithLessons[0].lessons[0]);
           }
         }
+
+        // Load completed lessons
+        if (courseId) {
+          const completedIds = await getLessonProgressForCourse(parseInt(courseId));
+          setCompletedLessons(completedIds);
+        }
       } catch (error) {
         console.error('Error loading course from Supabase:', error);
       }
@@ -100,6 +110,16 @@ export default function CoursePlayer() {
 
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);
+  };
+
+  const handleToggleComplete = async () => {
+    await toggleComplete();
+    
+    // Refresh completed lessons list
+    if (courseId && currentLesson) {
+      const completedIds = await getLessonProgressForCourse(parseInt(courseId));
+      setCompletedLessons(completedIds);
+    }
   };
 
   const getCurrentLessonIndex = () => {
@@ -287,10 +307,22 @@ export default function CoursePlayer() {
                     </div>
                   </div>
                   <Button 
-                    variant="outline"
-                    className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
+                    variant={isCompleted ? "default" : "outline"}
+                    className={isCompleted 
+                      ? "bg-green-500 hover:bg-green-600 text-white font-medium"
+                      : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
+                    }
+                    onClick={handleToggleComplete}
+                    disabled={progressLoading}
                   >
-                    Marcar aula como concluída
+                    {isCompleted ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Aula concluída
+                      </>
+                    ) : (
+                      "Marcar aula como concluída"
+                    )}
                   </Button>
                 </div>
               </div>
@@ -343,6 +375,9 @@ export default function CoursePlayer() {
                                 {lesson.title}
                               </p>
                             </div>
+                            {completedLessons.includes(lesson.id) && (
+                              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            )}
                           </div>
                         </button>
                       ))}
