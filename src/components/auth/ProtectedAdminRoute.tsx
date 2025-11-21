@@ -1,10 +1,9 @@
-import { ReactNode, useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AuthModal } from "./AuthModal";
 
 interface ProtectedAdminRouteProps {
   children: ReactNode;
@@ -14,24 +13,22 @@ export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useIsAdmin();
   const { toast } = useToast();
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [hasChecked, setHasChecked] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && !adminLoading && !hasChecked) {
-      setHasChecked(true);
-      
+    if (!authLoading && !adminLoading) {
       if (!isAuthenticated) {
-        setShowAuthModal(true);
+        navigate("/", { replace: true });
       } else if (!isAdmin) {
         toast({
           title: "Acesso Negado",
           description: "Você não tem permissão para acessar esta área.",
           variant: "destructive",
         });
+        navigate("/", { replace: true });
       }
     }
-  }, [isAuthenticated, isAdmin, authLoading, adminLoading, hasChecked, toast]);
+  }, [isAuthenticated, isAdmin, authLoading, adminLoading, navigate, toast]);
 
   if (authLoading || adminLoading) {
     return (
@@ -46,12 +43,7 @@ export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   }
 
   if (!isAuthenticated) {
-    return (
-      <>
-        <Navigate to="/" replace />
-        <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
-      </>
-    );
+    return <Navigate to="/" replace />;
   }
 
   if (!isAdmin) {
