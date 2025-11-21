@@ -17,27 +17,39 @@ export default function CourseEditor() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  // Inicializar isLoading como true se estiver editando um curso existente
+  const isEditingExisting = courseId && courseId !== 'novo';
+  const [isLoading, setIsLoading] = useState(isEditingExisting);
 
-  const [course, setCourse] = useState<CourseStructureType>({
-    id: "new",
-    title: searchParams.get('title') || "Novo Curso",
-    status: 'draft',
-    modules: [
-      {
-        id: "module-1",
-        title: "INTRODUÇÃO",
-        description: "Módulo inicial do curso",
-        lessons: [
-          {
-            id: "lesson-1",
-            title: "Boas-vindas",
-            description: "",
-            materials: [],
-          },
-        ],
-      },
-    ],
+  // Inicializar o estado do curso condicionalmente
+  const [course, setCourse] = useState<CourseStructureType | null>(() => {
+    // Se estiver editando um curso existente, começar com null (será carregado)
+    if (isEditingExisting) {
+      return null;
+    }
+    
+    // Se for um curso novo, usar valores padrão
+    return {
+      id: "new",
+      title: searchParams.get('title') || "Novo Curso",
+      status: 'draft',
+      modules: [
+        {
+          id: "module-1",
+          title: "INTRODUÇÃO",
+          description: "Módulo inicial do curso",
+          lessons: [
+            {
+              id: "lesson-1",
+              title: "Boas-vindas",
+              description: "",
+              materials: [],
+            },
+          ],
+        },
+      ],
+    };
   });
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -67,45 +79,47 @@ export default function CourseEditor() {
   }, [courseId, toast]);
 
   const handleCourseEdit = (title: string) => {
-    setCourse(prev => ({ ...prev, title }));
+    setCourse(prev => prev ? ({ ...prev, title }) : null);
     setHasUnsavedChanges(true);
   };
 
   const handleModuleAdd = () => {
+    if (!course) return;
+    
     const newModule: Module = {
       id: `module-${Date.now()}`,
       title: `Módulo ${course.modules.length + 1}`,
       description: "",
       lessons: [],
     };
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: [...prev.modules, newModule],
-    }));
+    }) : null);
     setHasUnsavedChanges(true);
   };
 
   const handleModuleUpdate = (moduleId: string, updates: Partial<Module>) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId ? { ...m, ...updates } : m
       ),
-    }));
+    }) : null);
     setHasUnsavedChanges(true);
   };
 
   const handleModuleDelete = (moduleId: string) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.filter(m => m.id !== moduleId),
-    }));
+    }) : null);
     setSelectedItem({ type: 'none' });
     setHasUnsavedChanges(true);
   };
 
   const handleLessonAdd = (moduleId: string) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId
@@ -123,7 +137,7 @@ export default function CourseEditor() {
             }
           : m
       ),
-    }));
+    }) : null);
     setHasUnsavedChanges(true);
   };
 
@@ -132,7 +146,7 @@ export default function CourseEditor() {
     lessonId: string,
     updates: Partial<Lesson>
   ) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId
@@ -144,12 +158,12 @@ export default function CourseEditor() {
             }
           : m
       ),
-    }));
+    }) : null);
     setHasUnsavedChanges(true);
   };
 
   const handleLessonDelete = (moduleId: string, lessonId: string) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId
@@ -159,7 +173,7 @@ export default function CourseEditor() {
             }
           : m
       ),
-    }));
+    }) : null);
     setSelectedItem({ type: 'none' });
     setHasUnsavedChanges(true);
   };
@@ -174,7 +188,7 @@ export default function CourseEditor() {
       type: "application/pdf",
     };
 
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId
@@ -191,7 +205,7 @@ export default function CourseEditor() {
             }
           : m
       ),
-    }));
+    }) : null);
 
     toast({
       title: "Material adicionado",
@@ -205,7 +219,7 @@ export default function CourseEditor() {
     lessonId: string,
     materialId: string
   ) => {
-    setCourse(prev => ({
+    setCourse(prev => prev ? ({
       ...prev,
       modules: prev.modules.map(m =>
         m.id === moduleId
@@ -222,11 +236,13 @@ export default function CourseEditor() {
             }
           : m
       ),
-    }));
+    }) : null);
     setHasUnsavedChanges(true);
   };
 
   const handleSaveDraft = async () => {
+    if (!course) return;
+    
     // Validação do título
     const trimmedTitle = course.title.trim();
     if (!trimmedTitle || trimmedTitle === "Novo Curso") {
@@ -269,6 +285,8 @@ export default function CourseEditor() {
   };
 
   const handleTogglePublish = async (checked: boolean) => {
+    if (!course) return;
+    
     const newStatus = checked ? 'published' : 'draft';
     
     // Se o curso é novo, precisa salvar primeiro
@@ -304,10 +322,28 @@ export default function CourseEditor() {
     }
   };
 
+  // Estado de carregamento
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Carregando curso...</p>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+          <p className="text-muted-foreground">Carregando curso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não está carregando mas o curso é null, houve erro
+  if (!course) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <p className="text-destructive mb-4">Erro ao carregar o curso</p>
+          <Button onClick={() => navigate("/admin/cursos")}>
+            Voltar para Cursos
+          </Button>
+        </div>
       </div>
     );
   }
