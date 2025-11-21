@@ -272,6 +272,39 @@ export default function CourseEditor() {
       return;
     }
 
+    // Validação de duração das aulas
+    const lessonsWithoutDuration: { moduleTitle: string; lessonTitle: string; position: string }[] = [];
+    
+    course.modules.forEach((module, moduleIndex) => {
+      module.lessons.forEach((lesson, lessonIndex) => {
+        if (!lesson.duration || lesson.duration === 0) {
+          lessonsWithoutDuration.push({
+            moduleTitle: module.title,
+            lessonTitle: lesson.title,
+            position: `${moduleIndex + 1}.${lessonIndex + 1}`,
+          });
+        }
+      });
+    });
+
+    if (lessonsWithoutDuration.length > 0) {
+      const lessonList = lessonsWithoutDuration
+        .slice(0, 5)
+        .map(l => `• Aula ${l.position}: ${l.lessonTitle}`)
+        .join('\n');
+      
+      const moreCount = lessonsWithoutDuration.length > 5 
+        ? `\n... e mais ${lessonsWithoutDuration.length - 5} aula(s)`
+        : '';
+
+      toast({
+        title: "Duração das aulas obrigatória",
+        description: `${lessonsWithoutDuration.length} aula(s) sem duração definida:\n\n${lessonList}${moreCount}\n\nPreencha a duração de todas as aulas antes de salvar.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const savedCourseId = await saveCourse(course, course.status);
