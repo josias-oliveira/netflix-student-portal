@@ -12,6 +12,8 @@ export interface CourseData {
   featured?: boolean;
   status: string | null;
   created_at: string | null;
+  is_paid?: boolean;
+  price?: number;
   modules?: number;
   totalLessons?: number;
   duration?: string;

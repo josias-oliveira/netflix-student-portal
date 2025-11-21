@@ -23,6 +23,8 @@ const MeusCursos = () => {
     category: 'Meus Cursos',
     totalLessons: course.totalLessons,
     progress: course.progress,
+    isPaid: course.is_paid || false,
+    price: course.price || 0,
   }));
 
   if (loading) {
