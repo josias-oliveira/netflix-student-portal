@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,24 +12,37 @@ interface CourseInfoEditorProps {
   courseTitle: string;
   courseDescription?: string;
   thumbnailUrl?: string;
+  coverImageUrl?: string;
+  featured?: boolean;
   onTitleUpdate: (title: string) => void;
   onDescriptionUpdate: (description: string) => void;
   onThumbnailUpdate: (url: string) => void;
+  onCoverImageUpdate: (url: string) => void;
+  onFeaturedUpdate: (featured: boolean) => void;
 }
 
 export function CourseInfoEditor({
   courseTitle,
   courseDescription,
   thumbnailUrl,
+  coverImageUrl,
+  featured,
   onTitleUpdate,
   onDescriptionUpdate,
   onThumbnailUpdate,
+  onCoverImageUpdate,
+  onFeaturedUpdate,
 }: CourseInfoEditorProps) {
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'thumbnail' | 'cover'
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -52,12 +66,16 @@ export function CourseInfoEditor({
       return;
     }
 
-    setUploading(true);
+    if (type === 'thumbnail') {
+      setUploadingThumbnail(true);
+    } else {
+      setUploadingCover(true);
+    }
 
     try {
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `${type}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = fileName;
 
       // Upload to Supabase Storage
@@ -75,33 +93,55 @@ export function CourseInfoEditor({
         .from('thumbnails')
         .getPublicUrl(filePath);
 
-      onThumbnailUpdate(publicUrl);
-
-      toast({
-        title: "Imagem enviada",
-        description: "A capa do curso foi atualizada com sucesso",
-      });
+      if (type === 'thumbnail') {
+        onThumbnailUpdate(publicUrl);
+        toast({
+          title: "Thumbnail enviado",
+          description: "A miniatura do curso foi atualizada com sucesso",
+        });
+      } else {
+        onCoverImageUpdate(publicUrl);
+        toast({
+          title: "Capa enviada",
+          description: "A imagem de capa do curso foi atualizada com sucesso",
+        });
+      }
     } catch (error: any) {
-      console.error('Error uploading thumbnail:', error);
+      console.error('Error uploading image:', error);
       toast({
         title: "Erro ao enviar imagem",
         description: error.message || "Não foi possível fazer upload da imagem",
         variant: "destructive",
       });
     } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      if (type === 'thumbnail') {
+        setUploadingThumbnail(false);
+        if (thumbnailInputRef.current) {
+          thumbnailInputRef.current.value = '';
+        }
+      } else {
+        setUploadingCover(false);
+        if (coverInputRef.current) {
+          coverInputRef.current.value = '';
+        }
       }
     }
   };
 
-  const handleRemoveThumbnail = () => {
-    onThumbnailUpdate('');
-    toast({
-      title: "Imagem removida",
-      description: "A capa do curso foi removida",
-    });
+  const handleRemoveImage = (type: 'thumbnail' | 'cover') => {
+    if (type === 'thumbnail') {
+      onThumbnailUpdate('');
+      toast({
+        title: "Thumbnail removido",
+        description: "A miniatura do curso foi removida",
+      });
+    } else {
+      onCoverImageUpdate('');
+      toast({
+        title: "Capa removida",
+        description: "A imagem de capa do curso foi removida",
+      });
+    }
   };
 
   return (
@@ -135,14 +175,30 @@ export function CourseInfoEditor({
           />
         </div>
 
+        <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="space-y-0.5">
+            <Label>Curso em Destaque</Label>
+            <p className="text-sm text-muted-foreground">
+              Marque se este curso deve aparecer como destaque
+            </p>
+          </div>
+          <Switch
+            checked={featured || false}
+            onCheckedChange={onFeaturedUpdate}
+          />
+        </div>
+
         <div className="space-y-2">
-          <Label>Imagem de Capa do Curso</Label>
+          <Label>Imagem de Capa (Banner Grande)</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Recomendado: 1920x1080px (16:9) - Usada em páginas de detalhes
+          </p>
           <div className="border-2 border-dashed border-border rounded-lg p-6">
-            {thumbnailUrl ? (
+            {coverImageUrl ? (
               <div className="space-y-4">
-                <div className="relative aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden">
+                <div className="relative aspect-video w-full rounded-lg overflow-hidden">
                   <img
-                    src={thumbnailUrl}
+                    src={coverImageUrl}
                     alt="Capa do curso"
                     className="w-full h-full object-cover"
                   />
@@ -152,18 +208,18 @@ export function CourseInfoEditor({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
+                    onClick={() => coverInputRef.current?.click()}
+                    disabled={uploadingCover}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    Alterar Imagem
+                    Alterar Capa
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={handleRemoveThumbnail}
-                    disabled={uploading}
+                    onClick={() => handleRemoveImage('cover')}
+                    disabled={uploadingCover}
                   >
                     <X className="h-4 w-4 mr-2" />
                     Remover
@@ -174,16 +230,16 @@ export function CourseInfoEditor({
               <div className="text-center">
                 <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground mb-4">
-                  Nenhuma imagem selecionada
+                  Nenhuma imagem de capa selecionada
                 </p>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploadingCover}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "Enviando..." : "Selecionar Imagem"}
+                  {uploadingCover ? "Enviando..." : "Selecionar Capa"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
                   PNG, JPG ou WEBP (máx. 5MB)
@@ -193,10 +249,79 @@ export function CourseInfoEditor({
           </div>
 
           <input
-            ref={fileInputRef}
+            ref={coverInputRef}
             type="file"
             accept="image/*"
-            onChange={handleThumbnailUpload}
+            onChange={(e) => handleImageUpload(e, 'cover')}
+            className="hidden"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Thumbnail (Miniatura para Cards)</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Recomendado: 400x225px (16:9) - Usada em listagens e cards
+          </p>
+          <div className="border-2 border-dashed border-border rounded-lg p-6">
+            {thumbnailUrl ? (
+              <div className="space-y-4">
+                <div className="relative aspect-video w-full max-w-sm mx-auto rounded-lg overflow-hidden">
+                  <img
+                    src={thumbnailUrl}
+                    alt="Thumbnail do curso"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex justify-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => thumbnailInputRef.current?.click()}
+                    disabled={uploadingThumbnail}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Alterar Thumbnail
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleRemoveImage('thumbnail')}
+                    disabled={uploadingThumbnail}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Remover
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-sm text-muted-foreground mb-4">
+                  Nenhum thumbnail selecionado
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => thumbnailInputRef.current?.click()}
+                  disabled={uploadingThumbnail}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingThumbnail ? "Enviando..." : "Selecionar Thumbnail"}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  PNG, JPG ou WEBP (máx. 5MB)
+                </p>
+              </div>
+            )}
+          </div>
+
+          <input
+            ref={thumbnailInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageUpload(e, 'thumbnail')}
             className="hidden"
           />
         </div>

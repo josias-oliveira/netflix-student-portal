@@ -5,8 +5,11 @@ import { useAuth } from "./useAuth";
 export interface CourseData {
   id: number;
   title: string;
+  slug?: string;
   description: string | null;
   thumbnail_url: string | null;
+  cover_image_url?: string | null;
+  featured?: boolean;
   status: string | null;
   created_at: string | null;
   modules?: number;

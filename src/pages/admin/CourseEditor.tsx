@@ -9,7 +9,7 @@ import { ContentEditor } from "@/components/admin/course-editor/ContentEditor";
 import { CoursePreviewModal } from "@/components/admin/course-editor/CoursePreviewModal";
 import { CourseStructure as CourseStructureType, Module, Lesson, SelectedItem, Material } from "@/types/courseEditor";
 import { useToast } from "@/hooks/use-toast";
-import { saveCourse, loadCourse, updateCourseStatus } from "@/services/courseService";
+import { saveCourse, loadCourse, loadCourseBySlug, updateCourseStatus } from "@/services/courseService";
 
 export default function CourseEditor() {
   const navigate = useNavigate();
@@ -35,6 +35,8 @@ export default function CourseEditor() {
       title: searchParams.get('title') || "Novo Curso",
       description: undefined,
       thumbnail_url: undefined,
+      cover_image_url: undefined,
+      featured: false,
       status: 'draft',
       modules: [
         {
@@ -59,11 +61,19 @@ export default function CourseEditor() {
   const [selectedItem, setSelectedItem] = useState<SelectedItem>({ type: 'none' });
   const [showPreview, setShowPreview] = useState(false);
 
-  // Load course if editing existing one
+  // Load course if editing existing one (by ID or slug)
   useEffect(() => {
     if (courseId && courseId !== 'novo') {
       setIsLoading(true);
-      loadCourse(parseInt(courseId))
+      
+      // Check if courseId is a number (ID) or string (slug)
+      const isNumericId = /^\d+$/.test(courseId);
+      
+      const loadPromise = isNumericId 
+        ? loadCourse(parseInt(courseId))
+        : loadCourseBySlug(courseId);
+      
+      loadPromise
         .then((loadedCourse) => {
           console.log('Curso carregado:', loadedCourse);
           setCourse(loadedCourse);
@@ -265,9 +275,15 @@ export default function CourseEditor() {
     try {
       const savedCourseId = await saveCourse(course, course.status);
       
-      // Update course ID if it was new
+      // Update course ID if it was new, and get the saved course to get the slug
       if (course.id === 'new') {
-        setCourse(prev => ({ ...prev, id: savedCourseId.toString() }));
+        const savedCourse = await loadCourse(savedCourseId);
+        setCourse(savedCourse);
+        
+        // Navigate to the slug-based URL if slug exists
+        if (savedCourse.slug) {
+          navigate(`/admin/cursos/editor/${savedCourse.slug}`, { replace: true });
+        }
       }
       
       setHasUnsavedChanges(false);

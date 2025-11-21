@@ -160,7 +160,7 @@ export default function Courses() {
                       <Button 
                         variant="ghost" 
                         size="icon"
-                        onClick={() => navigate(`/admin/cursos/editor/${course.id}`)}
+                        onClick={() => navigate(`/admin/cursos/editor/${course.slug || course.id}`)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>

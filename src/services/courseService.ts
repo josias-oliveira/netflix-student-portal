@@ -5,8 +5,11 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
   // Save or update course
   const courseData = {
     title: course.title,
+    slug: course.slug || null,
     description: course.description || null,
     thumbnail_url: course.thumbnail_url || null,
+    cover_image_url: course.cover_image_url || null,
+    featured: course.featured || false,
     ...(status && { status }),
   };
 
@@ -158,8 +161,11 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
   const courseStructure: CourseStructure = {
     id: courseId.toString(),
     title: course.title,
+    slug: course.slug || undefined,
     description: course.description || undefined,
     thumbnail_url: course.thumbnail_url || undefined,
+    cover_image_url: course.cover_image_url || undefined,
+    featured: course.featured || false,
     status: course.status as 'draft' | 'published',
     modules: [],
   };
@@ -210,4 +216,18 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
   }
 
   return courseStructure;
+}
+
+export async function loadCourseBySlug(slug: string): Promise<CourseStructure> {
+  // Load course by slug
+  const { data: course, error: courseError } = await supabase
+    .from('courses')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (courseError) throw courseError;
+
+  // Use existing loadCourse function with the ID
+  return loadCourse(course.id);
 }
