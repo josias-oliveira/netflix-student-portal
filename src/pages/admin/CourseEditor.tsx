@@ -149,6 +149,7 @@ export default function CourseEditor() {
                   title: `Aula ${m.lessons.length + 1}`,
                   description: "",
                   materials: [],
+                  duration: 0,
                 },
               ],
             }

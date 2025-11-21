@@ -18,6 +18,22 @@ export interface CourseData {
   progress?: number;
 }
 
+// Helper function to format duration
+function formatDuration(minutes: number): string {
+  if (minutes === 0) return 'Duração não especificada';
+  
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  
+  if (hours === 0) {
+    return `${mins}min`;
+  } else if (mins === 0) {
+    return `${hours}h`;
+  } else {
+    return `${hours}h ${mins}min`;
+  }
+}
+
 export function useCourses() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +56,36 @@ export function useCourses() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setCourses(data || []);
+
+        // Calculate duration for each course
+        const coursesWithDuration = await Promise.all(
+          (data || []).map(async (course) => {
+            // Get all modules for this course
+            const { data: modules } = await supabase
+              .from('modules')
+              .select('id')
+              .eq('course_id', course.id);
+
+            if (!modules || modules.length === 0) {
+              return { ...course, duration: 'Duração não especificada' };
+            }
+
+            // Get all lessons and sum their durations
+            const { data: lessons } = await supabase
+              .from('lessons')
+              .select('duration')
+              .in('module_id', modules.map(m => m.id));
+
+            const totalMinutes = lessons?.reduce((sum, lesson) => sum + (lesson.duration || 0), 0) || 0;
+
+            return {
+              ...course,
+              duration: formatDuration(totalMinutes),
+            };
+          })
+        );
+
+        setCourses(coursesWithDuration);
       } catch (err) {
         setError(err as Error);
         console.error('Error fetching courses:', err);
@@ -153,7 +198,7 @@ export function useEnrolledCourses() {
 
         if (error) throw error;
 
-        // Get progress for each course
+        // Get progress and duration for each course
         const coursesWithProgress = await Promise.all(
           (data || []).map(async (course) => {
             // Get total lessons count
@@ -163,7 +208,7 @@ export function useEnrolledCourses() {
               .eq('course_id', course.id);
 
             if (!modules || modules.length === 0) {
-              return { ...course, progress: 0, totalLessons: 0 };
+              return { ...course, progress: 0, totalLessons: 0, duration: 'Duração não especificada' };
             }
 
             const { count: totalLessons } = await supabase
@@ -171,10 +216,10 @@ export function useEnrolledCourses() {
               .select('id', { count: 'exact', head: true })
               .in('module_id', modules.map(m => m.id));
 
-            // Get completed lessons count
+            // Get completed lessons count and durations
             const { data: lessons } = await supabase
               .from('lessons')
-              .select('id')
+              .select('id, duration')
               .in('module_id', modules.map(m => m.id));
 
             const lessonIds = lessons?.map(l => l.id) || [];
@@ -189,10 +234,14 @@ export function useEnrolledCourses() {
               ? Math.round((completedLessons || 0) / totalLessons * 100)
               : 0;
 
+            // Calculate total duration
+            const totalMinutes = lessons?.reduce((sum, lesson) => sum + (lesson.duration || 0), 0) || 0;
+
             return {
               ...course,
               progress,
               totalLessons: totalLessons || 0,
+              duration: formatDuration(totalMinutes),
             };
           })
         );

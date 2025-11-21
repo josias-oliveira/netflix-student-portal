@@ -101,6 +101,22 @@ export function LessonEditor({
         />
       </div>
 
+      {/* Duration */}
+      <div className="space-y-2">
+        <Label htmlFor="lesson-duration">Duração do Vídeo (minutos)</Label>
+        <Input
+          id="lesson-duration"
+          type="number"
+          min="0"
+          value={lesson.duration || 0}
+          onChange={(e) => onUpdate({ duration: parseInt(e.target.value) || 0 })}
+          placeholder="Ex: 15"
+        />
+        <p className="text-xs text-muted-foreground">
+          Informe a duração do vídeo em minutos para calcular a duração total do curso
+        </p>
+      </div>
+
       {/* Description */}
       <div className="space-y-2">
         <Label htmlFor="lesson-description">Descrição da Aula</Label>
