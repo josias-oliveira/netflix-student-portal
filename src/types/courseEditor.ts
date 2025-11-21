@@ -34,6 +34,13 @@ export interface CourseStructure {
   cover_image_url?: string;
   featured?: boolean;
   status?: 'draft' | 'published';
+  certificate_enabled?: boolean;
+  certificate_template_url?: string;
+  certificate_text_x?: number;
+  certificate_text_y?: number;
+  certificate_font_size?: number;
+  certificate_font_color?: string;
+  certificate_instructor_name?: string;
   modules: Module[];
 }
 

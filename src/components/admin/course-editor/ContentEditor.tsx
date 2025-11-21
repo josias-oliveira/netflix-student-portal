@@ -2,6 +2,9 @@ import { Module, Lesson, SelectedItem, CourseStructure } from "@/types/courseEdi
 import { LessonEditor } from "./LessonEditor";
 import { ModuleEditor } from "./ModuleEditor";
 import { CourseInfoEditor } from "./CourseInfoEditor";
+import { CertificateEditor } from "./CertificateEditor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 
 interface ContentEditorProps {
   selectedItem: SelectedItem;
@@ -40,21 +43,39 @@ export function ContentEditor({
   }
 
   if (selectedItem.type === 'course') {
+    const [activeTab, setActiveTab] = useState("info");
+    
     return (
       <div className="h-full overflow-y-auto">
         <div className="max-w-3xl mx-auto p-6">
-          <CourseInfoEditor
-            courseTitle={course.title}
-            courseDescription={course.description}
-            thumbnailUrl={course.thumbnail_url}
-            coverImageUrl={course.cover_image_url}
-            featured={course.featured}
-            onTitleUpdate={(title) => onCourseUpdate({ title })}
-            onDescriptionUpdate={(description) => onCourseUpdate({ description })}
-            onThumbnailUpdate={(thumbnail_url) => onCourseUpdate({ thumbnail_url })}
-            onCoverImageUpdate={(cover_image_url) => onCourseUpdate({ cover_image_url })}
-            onFeaturedUpdate={(featured) => onCourseUpdate({ featured })}
-          />
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="info">Informações</TabsTrigger>
+              <TabsTrigger value="certificate">Certificado</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="info">
+              <CourseInfoEditor
+                courseTitle={course.title}
+                courseDescription={course.description}
+                thumbnailUrl={course.thumbnail_url}
+                coverImageUrl={course.cover_image_url}
+                featured={course.featured}
+                onTitleUpdate={(title) => onCourseUpdate({ title })}
+                onDescriptionUpdate={(description) => onCourseUpdate({ description })}
+                onThumbnailUpdate={(thumbnail_url) => onCourseUpdate({ thumbnail_url })}
+                onCoverImageUpdate={(cover_image_url) => onCourseUpdate({ cover_image_url })}
+                onFeaturedUpdate={(featured) => onCourseUpdate({ featured })}
+              />
+            </TabsContent>
+            
+            <TabsContent value="certificate">
+              <CertificateEditor
+                course={course}
+                onUpdate={onCourseUpdate}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     );
