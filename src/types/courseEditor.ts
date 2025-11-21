@@ -3,6 +3,7 @@ export interface Lesson {
   title: string;
   videoUrl?: string;
   videoFileName?: string;
+  streamingUrl?: string;
   uploadProgress?: number;
   description: string;
   materials: Material[];
