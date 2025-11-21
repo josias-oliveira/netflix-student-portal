@@ -161,7 +161,7 @@ export default function CoursePlayer() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <div className="px-6 py-3 flex items-center justify-between max-w-screen-2xl mx-auto">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -188,62 +188,105 @@ export default function CoursePlayer() {
       {/* Main Content */}
       <div className="flex-1 flex pt-16">
         {/* Video and Content Area */}
-        <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'mr-96' : ''}`}>
-          {/* Video Player */}
-          {currentLesson && (currentLesson.video_url || currentLesson.streaming_url) ? (
-            <VideoPlayer
-              videoUrl={currentLesson.video_url}
-              streamingUrl={currentLesson.streaming_url}
-            />
-          ) : (
-            <div className="w-full bg-black aspect-video flex items-center justify-center">
-              <p className="text-muted-foreground">Vídeo não disponível</p>
-            </div>
-          )}
-
-          {/* Course Info */}
-          <div className="px-6 py-6">
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground mb-2">{course.title}</p>
-              {currentLesson && (
-                <h2 className="text-2xl font-bold text-foreground">
-                  {currentLesson.title}
-                </h2>
+        <div className="flex-1 flex justify-center">
+          <div className={`w-full transition-all duration-300 ${sidebarOpen ? 'max-w-5xl' : 'max-w-7xl'}`}>
+            {/* Video Player */}
+            <div className="bg-black">
+              {currentLesson && (currentLesson.video_url || currentLesson.streaming_url) ? (
+                <VideoPlayer
+                  videoUrl={currentLesson.video_url}
+                  streamingUrl={currentLesson.streaming_url}
+                />
+              ) : (
+                <div className="w-full aspect-video flex items-center justify-center">
+                  <p className="text-muted-foreground">Vídeo não disponível</p>
+                </div>
               )}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-2 mb-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePreviousLesson}
-                disabled={currentIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextLesson}
-                disabled={currentIndex === allLessons.length - 1}
-              >
-                Próxima
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+            {/* Course Info */}
+            <div className="px-8 py-8 bg-background">
+              <div className="mb-4">
+                <p className="text-sm text-blue-600 font-medium mb-2">{course.title}</p>
+                {currentLesson && (
+                  <h2 className="text-3xl font-bold text-foreground mb-6">
+                    {currentLesson.title}
+                  </h2>
+                )}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex items-center gap-3 mb-8">
+                <Button
+                  variant="outline"
+                  onClick={handlePreviousLesson}
+                  disabled={currentIndex === 0}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Anterior</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleNextLesson}
+                  disabled={currentIndex === allLessons.length - 1}
+                  className="flex items-center gap-2"
+                >
+                  <span>Próxima</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Sections */}
+              <div className="space-y-8">
+                {/* Comments Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-semibold text-foreground">Comentários</h3>
+                    <span className="text-sm text-muted-foreground">0%</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
+                    <div className="flex-1">
+                      <textarea
+                        placeholder="Escreva sua pergunta ou comentário..."
+                        className="w-full min-h-[100px] p-4 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <div className="flex justify-end mt-3">
+                        <Button className="bg-green-500 hover:bg-green-600 text-white">
+                          Publicar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating Section */}
+                <div className="flex items-start justify-between pt-8 border-t border-border">
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">Avaliação</h3>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          className="text-2xl text-gray-300 hover:text-yellow-400 transition-colors"
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <Button className="bg-green-500 hover:bg-green-600 text-white">
+                    Marcar aula como concluída
+                  </Button>
+                </div>
+              </div>
             </div>
-            
-            {currentLesson?.description && (
-              <p className="text-muted-foreground">
-                {currentLesson.description}
-              </p>
-            )}
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className={`fixed top-16 right-0 bottom-0 w-96 bg-card border-l border-border transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`fixed top-16 right-0 bottom-0 w-96 bg-card border-l border-border transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'} z-40`}>
           <div className="flex flex-col h-full">
             <div className="p-4 border-b border-border flex items-center justify-between">
               <h3 className="font-semibold text-foreground">Conteúdo do Curso</h3>
@@ -257,29 +300,33 @@ export default function CoursePlayer() {
             </div>
 
             <ScrollArea className="flex-1">
-              <div className="p-4 space-y-4">
+              <div className="p-4 space-y-6">
                 {modules.map((module, moduleIndex) => (
                   <div key={module.id} className="space-y-2">
-                    <h4 className="font-medium text-sm text-foreground uppercase tracking-wide">
+                    <h4 className="font-semibold text-sm text-foreground uppercase tracking-wide mb-3">
                       {module.title}
                     </h4>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {module.lessons.map((lesson, lessonIndex) => (
                         <button
                           key={lesson.id}
                           onClick={() => handleLessonClick(lesson)}
-                          className={`w-full text-left p-3 rounded-lg transition-colors ${
+                          className={`w-full text-left p-3 rounded-lg transition-colors flex items-start gap-3 ${
                             currentLesson?.id === lesson.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'hover:bg-muted'
+                              ? 'bg-primary/10 border border-primary/20'
+                              : 'hover:bg-muted border border-transparent'
                           }`}
                         >
-                          <div className="flex items-start gap-3">
-                            <span className="text-xs font-medium mt-0.5">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <span className={`text-sm font-semibold flex-shrink-0 ${
+                              currentLesson?.id === lesson.id ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                               {lessonIndex + 1}
                             </span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
+                              <p className={`text-sm font-medium line-clamp-2 ${
+                                currentLesson?.id === lesson.id ? 'text-primary' : 'text-foreground'
+                              }`}>
                                 {lesson.title}
                               </p>
                             </div>
