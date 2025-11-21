@@ -26,7 +26,6 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
   const textY = course.certificate_text_y || 50;
   const fontSize = course.certificate_font_size || 48;
   const fontColor = course.certificate_font_color || "#000000";
-  const instructorName = course.certificate_instructor_name || "";
   const templateUrl = course.certificate_template_url || "";
 
   useEffect(() => {
@@ -172,17 +171,6 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
                 </div>
               </div>
 
-              {/* Instructor Name */}
-              <div className="space-y-2">
-                <Label htmlFor="instructor-name">Nome do Instrutor</Label>
-                <Input
-                  id="instructor-name"
-                  value={instructorName}
-                  onChange={(e) => onUpdate({ certificate_instructor_name: e.target.value })}
-                  placeholder="Ex: Prof. João Silva"
-                />
-              </div>
-
               {/* Text Position X */}
               <div className="space-y-2">
                 <Label>Posição Horizontal do Nome ({textX}%)</Label>
@@ -249,7 +237,8 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
                     />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    O texto "NOME DO ALUNO" será substituído pelo nome real do aluno no certificado final
+                    💡 Preview de posicionamento: O texto "NOME DO ALUNO" mostra onde o nome será posicionado. 
+                    Ao gerar o certificado, o nome completo do aluno será inserido automaticamente a partir do perfil dele.
                   </p>
                 </div>
               )}

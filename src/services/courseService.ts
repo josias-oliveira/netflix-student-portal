@@ -18,7 +18,6 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
     certificate_text_y: course.certificate_text_y || 50,
     certificate_font_size: course.certificate_font_size || 48,
     certificate_font_color: course.certificate_font_color || '#000000',
-    certificate_instructor_name: course.certificate_instructor_name || null,
     ...(status && { status }),
   };
 
@@ -185,7 +184,6 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
     certificate_text_y: course.certificate_text_y || 50,
     certificate_font_size: course.certificate_font_size || 48,
     certificate_font_color: course.certificate_font_color || '#000000',
-    certificate_instructor_name: course.certificate_instructor_name || undefined,
     modules: [],
   };
 
