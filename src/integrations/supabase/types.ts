@@ -54,7 +54,6 @@ export type Database = {
           certificate_enabled: boolean | null
           certificate_font_color: string | null
           certificate_font_size: number | null
-          certificate_instructor_name: string | null
           certificate_template_url: string | null
           certificate_text_x: number | null
           certificate_text_y: number | null
@@ -74,7 +73,6 @@ export type Database = {
           certificate_enabled?: boolean | null
           certificate_font_color?: string | null
           certificate_font_size?: number | null
-          certificate_instructor_name?: string | null
           certificate_template_url?: string | null
           certificate_text_x?: number | null
           certificate_text_y?: number | null
@@ -94,7 +92,6 @@ export type Database = {
           certificate_enabled?: boolean | null
           certificate_font_color?: string | null
           certificate_font_size?: number | null
-          certificate_instructor_name?: string | null
           certificate_template_url?: string | null
           certificate_text_x?: number | null
           certificate_text_y?: number | null
