@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import btxLogo from "@/assets/btx-logo.png";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ import { toast } from "sonner";
 export const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const handleProtectedNavigation = (path: string) => {
@@ -101,6 +103,14 @@ export const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/assinatura")}>
                   Pagamento / Assinatura
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      Admin
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                   Sair
