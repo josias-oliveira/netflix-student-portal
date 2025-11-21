@@ -47,10 +47,20 @@ export function LessonEditor({
     }, 500);
   };
 
+  const handleStreamingUrlChange = (url: string) => {
+    onUpdate({
+      streamingUrl: url,
+      videoUrl: undefined,
+      videoFileName: undefined,
+      uploadProgress: undefined,
+    });
+  };
+
   const handleVideoRemove = () => {
     onUpdate({
       videoUrl: undefined,
       videoFileName: undefined,
+      streamingUrl: undefined,
       uploadProgress: undefined,
     });
   };
@@ -83,8 +93,10 @@ export function LessonEditor({
         <VideoUpload
           videoUrl={lesson.videoUrl}
           videoFileName={lesson.videoFileName}
+          streamingUrl={lesson.streamingUrl}
           uploadProgress={lesson.uploadProgress}
           onVideoSelect={handleVideoSelect}
+          onStreamingUrlChange={handleStreamingUrlChange}
           onVideoRemove={handleVideoRemove}
         />
       </div>
