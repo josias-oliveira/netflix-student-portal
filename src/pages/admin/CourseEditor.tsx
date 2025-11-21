@@ -13,7 +13,7 @@ import { saveCourse, loadCourse, updateCourseStatus } from "@/services/courseSer
 
 export default function CourseEditor() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { courseId } = useParams();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -47,10 +47,13 @@ export default function CourseEditor() {
 
   // Load course if editing existing one
   useEffect(() => {
-    if (id && id !== 'new') {
+    if (courseId && courseId !== 'novo') {
       setIsLoading(true);
-      loadCourse(parseInt(id))
-        .then(setCourse)
+      loadCourse(parseInt(courseId))
+        .then((loadedCourse) => {
+          console.log('Curso carregado:', loadedCourse);
+          setCourse(loadedCourse);
+        })
         .catch((error) => {
           console.error('Error loading course:', error);
           toast({
@@ -61,7 +64,7 @@ export default function CourseEditor() {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [id, toast]);
+  }, [courseId, toast]);
 
   const handleCourseEdit = (title: string) => {
     setCourse(prev => ({ ...prev, title }));
