@@ -40,11 +40,11 @@ export default function Courses() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [courseToDelete, setCourseToDelete] = useState<number | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newCourseTitle, setNewCourseTitle] = useState("");
 
-  const handleDeleteClick = (courseId: number) => {
+  const handleDeleteClick = (courseId: string) => {
     setCourseToDelete(courseId);
     setDeleteDialogOpen(true);
   };
@@ -151,8 +151,8 @@ export default function Courses() {
                     {course.totalLessons || 0}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={course.status === "published" ? "default" : "secondary"}>
-                      {course.status === "published" ? "Publicado" : "Rascunho"}
+                    <Badge variant={course.is_published ? "default" : "secondary"}>
+                      {course.is_published ? "Publicado" : "Rascunho"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">

@@ -20,15 +20,15 @@ const Index = () => {
 
   // Convert database courses to Course type
   const convertedCourses: Course[] = courses.map(course => ({
-    id: course.id.toString(),
+    id: course.id,
     title: course.title,
     description: course.description || '',
     thumbnail: course.thumbnail_url || '/placeholder.svg',
-    instructor: 'BTX Academy',
+    instructor: course.instructor_name || 'BTX Academy',
     duration: course.duration || 'Duração não especificada',
-    category: 'Cursos',
-    totalLessons: course.totalLessons,
-    progress: course.progress,
+    category: course.category || 'Cursos',
+    totalLessons: course.totalLessons || 0,
+    progress: course.progress || 0,
     isPaid: course.is_paid || false,
     price: course.price || 0,
   }));
