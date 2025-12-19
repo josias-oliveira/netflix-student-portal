@@ -307,6 +307,7 @@ export default function CourseEditor() {
 
     setIsSaving(true);
     try {
+      console.log('Saving course with data:', JSON.stringify(course, null, 2));
       const savedCourseId = await saveCourse(course, course.status);
       
       // Update course ID if it was new, and get the saved course to get the slug
