@@ -140,9 +140,7 @@ export const CourseInfoModal = ({
                         {module.lessons.map((lesson, lessonIndex) => (
                           <div key={lesson.id} className="flex items-center gap-3 py-2 text-muted-foreground">
                             <PlayCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                            <span className="text-sm">
-                              {lessonIndex + 1}. {lesson.title}
-                            </span>
+                            <span className="text-sm">{lesson.title}</span>
                           </div>
                         ))}
                       </div>
