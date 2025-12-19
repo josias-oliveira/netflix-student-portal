@@ -104,13 +104,21 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
     // Insert lessons for this module
     for (let j = 0; j < module.lessons.length; j++) {
       const lesson = module.lessons[j];
+      const videoUrl = lesson.streamingUrl || lesson.videoUrl || null;
+      console.log(`Saving lesson "${lesson.title}":`, { 
+        streamingUrl: lesson.streamingUrl, 
+        videoUrl: lesson.videoUrl,
+        finalVideoUrl: videoUrl,
+        duration: lesson.duration 
+      });
+      
       const { error: lessonError } = await supabase
         .from('lessons')
         .insert({
           module_id: newModule.id,
           title: lesson.title,
           description: lesson.description || null,
-          video_url: lesson.streamingUrl || lesson.videoUrl || null,
+          video_url: videoUrl,
           duration_minutes: lesson.duration || 0,
           order_index: j,
           is_free: false,

@@ -88,6 +88,8 @@ export function LessonEditor({
   };
 
   const handleStreamingUrlChange = async (url: string) => {
+    console.log('handleStreamingUrlChange called with URL:', url);
+    
     onUpdate({
       streamingUrl: url,
       videoUrl: undefined,
