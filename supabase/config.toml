@@ -1,1 +1,4 @@
 project_id = "iwjlxuthgiplqngyaqfb"
+
+[functions.get-video-duration]
+verify_jwt = false
