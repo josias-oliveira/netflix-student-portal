@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export function useLessonProgress(lessonId: number | null) {
+export function useLessonProgress(lessonId: string | null) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -102,7 +102,7 @@ export function useLessonProgress(lessonId: number | null) {
   };
 }
 
-export async function getLessonProgressForCourse(courseId: number) {
+export async function getLessonProgressForCourse(courseId: string): Promise<string[]> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
