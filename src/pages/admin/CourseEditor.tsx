@@ -66,11 +66,11 @@ export default function CourseEditor() {
     if (courseId && courseId !== 'novo') {
       setIsLoading(true);
       
-      // Check if courseId is a number (ID) or string (slug)
-      const isNumericId = /^\d+$/.test(courseId);
+      // Check if courseId is a UUID (ID) or string (slug)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseId);
       
-      const loadPromise = isNumericId 
-        ? loadCourse(parseInt(courseId))
+      const loadPromise = isUUID 
+        ? loadCourse(courseId)
         : loadCourseBySlug(courseId);
       
       loadPromise
@@ -358,7 +358,7 @@ export default function CourseEditor() {
 
     setIsSaving(true);
     try {
-      await updateCourseStatus(parseInt(course.id), newStatus);
+      await updateCourseStatus(course.id, newStatus);
       setCourse(prev => ({ ...prev, status: newStatus }));
       
       toast({
