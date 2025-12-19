@@ -36,14 +36,16 @@ export default function CoursePlayer() {
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
 
-  // Check authentication
+  // Check authentication FIRST
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      setAuthChecked(true);
       
       if (!user) {
         setShowAuthModal(true);
@@ -54,6 +56,7 @@ export default function CoursePlayer() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
+      setAuthChecked(true);
       if (session?.user) {
         setShowAuthModal(false);
       }
@@ -62,7 +65,11 @@ export default function CoursePlayer() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // ONLY load course AFTER authentication is confirmed
   useEffect(() => {
+    // Don't load anything until auth is checked AND user is authenticated
+    if (!authChecked || !user) return;
+
     async function loadCourse() {
       if (!courseId) return;
 
@@ -132,7 +139,7 @@ export default function CoursePlayer() {
     }
 
     loadCourse();
-  }, [courseId]);
+  }, [courseId, authChecked, user]);
 
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);
@@ -180,6 +187,33 @@ export default function CoursePlayer() {
       setCurrentLesson(allLessons[currentIndex + 1]);
     }
   };
+
+  // SECURITY: Block all rendering until auth is verified
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Verificando autenticação...</p>
+      </div>
+    );
+  }
+
+  // SECURITY: If not authenticated, show ONLY the auth modal - no course content
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <AuthModal
+          open={showAuthModal}
+          onOpenChange={(open) => {
+            setShowAuthModal(open);
+            if (!open) navigate("/");
+          }}
+          onSuccess={() => {
+            setShowAuthModal(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -406,16 +440,6 @@ export default function CoursePlayer() {
           </div>
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <AuthModal
-        open={showAuthModal}
-        onOpenChange={setShowAuthModal}
-        onSuccess={() => {
-          setShowAuthModal(false);
-          window.location.reload();
-        }}
-      />
     </div>
   );
 }
