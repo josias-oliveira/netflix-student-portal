@@ -295,60 +295,57 @@ export default function CoursePlayer() {
                 </div>
               </div>
 
-              {/* Sections */}
-              <div className="space-y-8">
-                {/* Comments Section */}
+              {/* Rating and Complete Section */}
+              <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">Comentários</h3>
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
-                    <div className="flex-1">
-                      <textarea
-                        placeholder="Escreva sua pergunta ou comentário..."
-                        className="w-full min-h-[100px] p-4 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                      <div className="flex justify-end mt-3">
-                        <Button className="bg-green-500 hover:bg-green-600 text-white">
-                          Publicar
-                        </Button>
-                      </div>
-                    </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Avaliação</h3>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        className="text-2xl text-gray-300 hover:text-yellow-400 transition-colors"
+                      >
+                        ★
+                      </button>
+                    ))}
                   </div>
                 </div>
+                <Button 
+                  variant={isCompleted ? "default" : "outline"}
+                  className={isCompleted 
+                    ? "bg-green-500 hover:bg-green-600 text-white font-medium"
+                    : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
+                  }
+                  onClick={handleToggleComplete}
+                  disabled={progressLoading}
+                >
+                  {isCompleted ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4" />
+                      Aula concluída
+                    </>
+                  ) : (
+                    "Marcar aula como concluída"
+                  )}
+                </Button>
+              </div>
 
-                {/* Rating Section */}
-                <div className="flex items-center justify-between pt-8 border-t border-border">
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-3">Avaliação</h3>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          className="text-2xl text-gray-300 hover:text-yellow-400 transition-colors"
-                        >
-                          ★
-                        </button>
-                      ))}
+              {/* Comments Section */}
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-4">Comentários</h3>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
+                  <div className="flex-1">
+                    <textarea
+                      placeholder="Escreva sua pergunta ou comentário..."
+                      className="w-full min-h-[100px] p-4 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <div className="flex justify-end mt-3">
+                      <Button className="bg-green-500 hover:bg-green-600 text-white">
+                        Publicar
+                      </Button>
                     </div>
                   </div>
-                  <Button 
-                    variant={isCompleted ? "default" : "outline"}
-                    className={isCompleted 
-                      ? "bg-green-500 hover:bg-green-600 text-white font-medium"
-                      : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
-                    }
-                    onClick={handleToggleComplete}
-                    disabled={progressLoading}
-                  >
-                    {isCompleted ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Aula concluída
-                      </>
-                    ) : (
-                      "Marcar aula como concluída"
-                    )}
-                  </Button>
                 </div>
               </div>
             </div>
