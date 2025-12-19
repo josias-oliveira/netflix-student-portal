@@ -1,5 +1,5 @@
 import { Course } from "@/types/course";
-import { Play, Clock, Crown, Tag } from "lucide-react";
+import { Play, Clock, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
@@ -40,18 +40,6 @@ export const CourseCard = ({ course, onClick }: CourseCardProps) => {
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex gap-2">
-          {/* Price Badge */}
-          {course.isPaid ? (
-            <Badge className="bg-primary text-primary-foreground font-bold">
-              <Tag className="w-3 h-3 mr-1" />
-              R$ {course.price?.toFixed(2)}
-            </Badge>
-          ) : (
-            <Badge className="bg-green-600 text-white font-bold">
-              GRÁTIS
-            </Badge>
-          )}
-          
           {course.isNew && (
             <Badge className="bg-accent text-accent-foreground">
               Novo
