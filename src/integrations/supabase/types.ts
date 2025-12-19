@@ -56,7 +56,9 @@ export type Database = {
           instructor_avatar: string | null
           instructor_name: string | null
           is_featured: boolean
+          is_paid: boolean
           is_published: boolean
+          price: number | null
           slug: string | null
           thumbnail_url: string | null
           title: string
@@ -72,7 +74,9 @@ export type Database = {
           instructor_avatar?: string | null
           instructor_name?: string | null
           is_featured?: boolean
+          is_paid?: boolean
           is_published?: boolean
+          price?: number | null
           slug?: string | null
           thumbnail_url?: string | null
           title: string
@@ -88,7 +92,9 @@ export type Database = {
           instructor_avatar?: string | null
           instructor_name?: string | null
           is_featured?: boolean
+          is_paid?: boolean
           is_published?: boolean
+          price?: number | null
           slug?: string | null
           thumbnail_url?: string | null
           title?: string

@@ -34,7 +34,10 @@ const Index = () => {
     price: course.price || 0,
   }));
 
-  const featuredCourse = convertedCourses[0] || null;
+  // Find featured course from the database
+  const featuredCourse = courses.find(c => c.is_featured) 
+    ? convertedCourses.find(c => courses.find(db => db.id === c.id)?.is_featured)
+    : convertedCourses[0] || null;
 
   const handleCourseClick = (course: Course) => {
     if (!isAuthenticated) {
