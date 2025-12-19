@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check } from "lucide-react";
+import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -191,7 +191,11 @@ export default function CoursePlayer() {
   // SECURITY: Block all rendering until auth is verified
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
+        </div>
         <p className="text-muted-foreground">Verificando autenticação...</p>
       </div>
     );
@@ -217,7 +221,11 @@ export default function CoursePlayer() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
+        </div>
         <p className="text-muted-foreground">Carregando curso...</p>
       </div>
     );
