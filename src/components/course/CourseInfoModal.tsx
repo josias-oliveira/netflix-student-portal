@@ -9,16 +9,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle } from "lucide-react";
 
 interface Module {
-  id: number;
+  id: string;
   title: string;
-  order: number;
+  order_index: number;
   lessons: Lesson[];
 }
 
 interface Lesson {
-  id: number;
+  id: string;
   title: string;
-  order: number;
+  order_index: number;
 }
 
 interface CourseInfoModalProps {
@@ -51,9 +51,9 @@ export const CourseInfoModal = ({
       // Fetch modules for this course
       const { data: modulesData, error: modulesError } = await supabase
         .from('modules')
-        .select('id, title, order')
+        .select('id, title, order_index')
         .eq('course_id', course.id)
-        .order('order');
+        .order('order_index');
 
       if (modulesError) throw modulesError;
 
@@ -61,9 +61,9 @@ export const CourseInfoModal = ({
         // Fetch lessons for each module
         const { data: lessonsData, error: lessonsError } = await supabase
           .from('lessons')
-          .select('id, title, order, module_id')
+          .select('id, title, order_index, module_id')
           .in('module_id', modulesData.map(m => m.id))
-          .order('order');
+          .order('order_index');
 
         if (lessonsError) throw lessonsError;
 
