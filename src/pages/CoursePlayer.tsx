@@ -9,19 +9,19 @@ import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLesson
 import { AuthModal } from "@/components/auth/AuthModal";
 
 interface Lesson {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   video_url: string | null;
-  streaming_url: string | null;
-  order: number;
+  order_index: number;
+  duration_minutes: number | null;
 }
 
 interface Module {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
-  order: number;
+  order_index: number;
   lessons: Lesson[];
 }
 
@@ -33,7 +33,7 @@ export default function CoursePlayer() {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
   
@@ -88,7 +88,7 @@ export default function CoursePlayer() {
           .from('modules')
           .select('*')
           .eq('course_id', courseId)
-          .order('order');
+          .order('order_index');
 
         if (modulesError) throw modulesError;
 
@@ -100,7 +100,7 @@ export default function CoursePlayer() {
                 .from('lessons')
                 .select('*')
                 .eq('module_id', module.id)
-                .order('order');
+                .order('order_index');
 
               if (lessonsError) {
                 console.error('Error loading lessons:', lessonsError);
@@ -121,7 +121,7 @@ export default function CoursePlayer() {
 
         // Load completed lessons
         if (courseId) {
-          const completedIds = await getLessonProgressForCourse(parseInt(courseId));
+          const completedIds = await getLessonProgressForCourse(courseId);
           setCompletedLessons(completedIds);
         }
       } catch (error) {
@@ -143,7 +143,7 @@ export default function CoursePlayer() {
     
     // Refresh completed lessons list
     if (courseId && currentLesson) {
-      const completedIds = await getLessonProgressForCourse(parseInt(courseId));
+      const completedIds = await getLessonProgressForCourse(courseId);
       setCompletedLessons(completedIds);
     }
   };
@@ -238,10 +238,9 @@ export default function CoursePlayer() {
           <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
             <div className="bg-black">
-              {currentLesson && (currentLesson.video_url || currentLesson.streaming_url) ? (
+              {currentLesson && currentLesson.video_url ? (
                 <VideoPlayer
-                  videoUrl={currentLesson.video_url}
-                  streamingUrl={currentLesson.streaming_url}
+                  streamingUrl={currentLesson.video_url}
                 />
               ) : (
                 <div className="w-full aspect-video flex items-center justify-center">
