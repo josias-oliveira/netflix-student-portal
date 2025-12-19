@@ -388,11 +388,6 @@ export default function CoursePlayer() {
                           }`}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <span className={`text-sm font-semibold flex-shrink-0 ${
-                              currentLesson?.id === lesson.id ? 'text-primary' : 'text-muted-foreground'
-                            }`}>
-                              {lessonIndex + 1}
-                            </span>
                             <div className="flex-1 min-w-0">
                               <p className={`text-sm font-medium line-clamp-2 ${
                                 currentLesson?.id === lesson.id ? 'text-primary' : 'text-foreground'
