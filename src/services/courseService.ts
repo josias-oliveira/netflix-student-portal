@@ -1,27 +1,37 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CourseStructure, Module, Lesson, Material } from "@/types/courseEditor";
 
-export async function saveCourse(course: CourseStructure, status?: 'draft' | 'published'): Promise<number> {
+export async function saveCourse(course: CourseStructure, status?: 'draft' | 'published'): Promise<string> {
+  // Generate slug from title if not provided
+  const slug = course.slug || course.title.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+
+  // Calculate total duration from lessons
+  let totalDurationMinutes = 0;
+  for (const module of course.modules) {
+    for (const lesson of module.lessons) {
+      totalDurationMinutes += lesson.duration || 0;
+    }
+  }
+  const durationHours = Math.ceil(totalDurationMinutes / 60);
+
   // Save or update course
   const courseData = {
     title: course.title,
-    slug: course.slug || null,
+    slug: slug,
     description: course.description || null,
     thumbnail_url: course.thumbnail_url || null,
-    cover_image_url: course.cover_image_url || null,
-    featured: course.featured || false,
-    is_paid: course.is_paid || false,
-    price: course.price || 0,
-    certificate_enabled: course.certificate_enabled || false,
-    certificate_template_url: course.certificate_template_url || null,
-    certificate_text_x: course.certificate_text_x || 50,
-    certificate_text_y: course.certificate_text_y || 50,
-    certificate_font_size: course.certificate_font_size || 48,
-    certificate_font_color: course.certificate_font_color || '#000000',
-    ...(status && { status }),
+    is_featured: course.featured || false,
+    is_published: status === 'published',
+    duration_hours: durationHours,
   };
 
-  let courseId: number;
+  let courseId: string;
 
   if (course.id === 'new') {
     // Insert new course
@@ -31,20 +41,26 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
       .select('id')
       .single();
 
-    if (courseError) throw courseError;
+    if (courseError) {
+      console.error('Error creating course:', courseError);
+      throw courseError;
+    }
     courseId = newCourse.id;
   } else {
     // Update existing course
-    courseId = parseInt(course.id);
+    courseId = course.id;
     const { error: courseError } = await supabase
       .from('courses')
       .update(courseData)
       .eq('id', courseId);
 
-    if (courseError) throw courseError;
+    if (courseError) {
+      console.error('Error updating course:', courseError);
+      throw courseError;
+    }
   }
 
-  // Delete existing modules, lessons, and materials for this course
+  // Delete existing modules, lessons for this course
   const { data: existingModules } = await supabase
     .from('modules')
     .select('id')
@@ -53,27 +69,11 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
   if (existingModules && existingModules.length > 0) {
     const moduleIds = existingModules.map(m => m.id);
     
-    // Get lesson ids to delete materials
-    const { data: existingLessons } = await supabase
+    // Delete lessons
+    await supabase
       .from('lessons')
-      .select('id')
+      .delete()
       .in('module_id', moduleIds);
-
-    if (existingLessons && existingLessons.length > 0) {
-      const lessonIds = existingLessons.map(l => l.id);
-      
-      // Delete materials
-      await supabase
-        .from('lesson_materials')
-        .delete()
-        .in('lesson_id', lessonIds);
-      
-      // Delete lessons
-      await supabase
-        .from('lessons')
-        .delete()
-        .in('module_id', moduleIds);
-    }
 
     // Delete modules
     await supabase
@@ -90,65 +90,52 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
       .insert({
         course_id: courseId,
         title: module.title,
-        description: module.description,
-        order: i + 1,
+        description: module.description || null,
+        order_index: i,
       })
       .select('id')
       .single();
 
-    if (moduleError) throw moduleError;
+    if (moduleError) {
+      console.error('Error creating module:', moduleError);
+      throw moduleError;
+    }
 
     // Insert lessons for this module
     for (let j = 0; j < module.lessons.length; j++) {
       const lesson = module.lessons[j];
-      const { data: newLesson, error: lessonError } = await supabase
+      const { error: lessonError } = await supabase
         .from('lessons')
         .insert({
           module_id: newModule.id,
           title: lesson.title,
-          description: lesson.description,
-          video_url: lesson.videoUrl || null,
-          streaming_url: lesson.streamingUrl || null,
-          duration: lesson.duration || 0,
-          order: j + 1,
-        })
-        .select('id')
-        .single();
+          description: lesson.description || null,
+          video_url: lesson.streamingUrl || lesson.videoUrl || null,
+          duration_minutes: lesson.duration || 0,
+          order_index: j,
+          is_free: false,
+        });
 
-      if (lessonError) throw lessonError;
-
-      // Insert materials for this lesson
-      if (lesson.materials && lesson.materials.length > 0) {
-        const materialsData = lesson.materials.map(material => ({
-          lesson_id: newLesson.id,
-          name: material.name,
-          url: material.url,
-          size: material.size,
-          type: material.type,
-        }));
-
-        const { error: materialsError } = await supabase
-          .from('lesson_materials')
-          .insert(materialsData);
-
-      if (materialsError) throw materialsError;
+      if (lessonError) {
+        console.error('Error creating lesson:', lessonError);
+        throw lessonError;
+      }
     }
-  }
   }
 
   return courseId;
 }
 
-export async function updateCourseStatus(courseId: number, status: 'draft' | 'published'): Promise<void> {
+export async function updateCourseStatus(courseId: string, status: 'draft' | 'published'): Promise<void> {
   const { error } = await supabase
     .from('courses')
-    .update({ status })
+    .update({ is_published: status === 'published' })
     .eq('id', courseId);
 
   if (error) throw error;
 }
 
-export async function loadCourse(courseId: number): Promise<CourseStructure> {
+export async function loadCourse(courseId: string): Promise<CourseStructure> {
   // Load course
   const { data: course, error: courseError } = await supabase
     .from('courses')
@@ -163,27 +150,18 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
     .from('modules')
     .select('*')
     .eq('course_id', courseId)
-    .order('order');
+    .order('order_index');
 
   if (modulesError) throw modulesError;
 
   const courseStructure: CourseStructure = {
-    id: courseId.toString(),
+    id: courseId,
     title: course.title,
     slug: course.slug || undefined,
     description: course.description || undefined,
     thumbnail_url: course.thumbnail_url || undefined,
-    cover_image_url: course.cover_image_url || undefined,
-    featured: course.featured || false,
-    status: course.status as 'draft' | 'published',
-    is_paid: course.is_paid || false,
-    price: course.price || 0,
-    certificate_enabled: course.certificate_enabled || false,
-    certificate_template_url: course.certificate_template_url || undefined,
-    certificate_text_x: course.certificate_text_x || 50,
-    certificate_text_y: course.certificate_text_y || 50,
-    certificate_font_size: course.certificate_font_size || 48,
-    certificate_font_color: course.certificate_font_color || '#000000',
+    featured: course.is_featured || false,
+    status: course.is_published ? 'published' : 'draft',
     modules: [],
   };
 
@@ -193,40 +171,26 @@ export async function loadCourse(courseId: number): Promise<CourseStructure> {
       .from('lessons')
       .select('*')
       .eq('module_id', module.id)
-      .order('order');
+      .order('order_index');
 
     if (lessonsError) throw lessonsError;
 
     const moduleLessons: Lesson[] = [];
 
     for (const lesson of lessons || []) {
-      // Load materials for this lesson
-      const { data: materials, error: materialsError } = await supabase
-        .from('lesson_materials')
-        .select('*')
-        .eq('lesson_id', lesson.id);
-
-      if (materialsError) throw materialsError;
-
       moduleLessons.push({
-        id: lesson.id.toString(),
+        id: lesson.id,
         title: lesson.title,
         description: lesson.description || '',
-        videoUrl: lesson.video_url || undefined,
-        streamingUrl: lesson.streaming_url || undefined,
-        duration: lesson.duration || 0,
-        materials: (materials || []).map(m => ({
-          id: m.id.toString(),
-          name: m.name,
-          url: m.url,
-          size: m.size || '',
-          type: m.type || '',
-        })),
+        videoUrl: undefined,
+        streamingUrl: lesson.video_url || undefined,
+        duration: lesson.duration_minutes || 0,
+        materials: [],
       });
     }
 
     courseStructure.modules.push({
-      id: module.id.toString(),
+      id: module.id,
       title: module.title,
       description: module.description || '',
       lessons: moduleLessons,
