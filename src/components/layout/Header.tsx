@@ -45,7 +45,7 @@ export const Header = () => {
             onClick={() => navigate("/")}
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <img src={btxLogo} alt="BTX Logo" className="h-12 w-12 object-contain" />
+            <img src={btxLogo} alt="BTX Logo" className="h-14 w-14 object-contain" />
           </button>
           
           <nav className="hidden md:flex items-center gap-6">
