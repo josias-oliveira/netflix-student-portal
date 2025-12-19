@@ -76,7 +76,6 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPla
       playsInline
       preload="metadata"
       autoPlay
-      muted
     >
       Seu navegador não suporta a reprodução de vídeo.
     </video>
