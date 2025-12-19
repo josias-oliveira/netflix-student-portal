@@ -130,10 +130,7 @@ export const CourseInfoModal = ({
                 {modules.map((module, index) => (
                   <AccordionItem key={module.id} value={`module-${module.id}`}>
                     <AccordionTrigger className="text-left hover:no-underline">
-                      <div className="flex items-start gap-3">
-                        <span className="font-semibold text-primary">Módulo {index + 1}:</span>
-                        <span className="font-medium text-foreground">{module.title}</span>
-                      </div>
+                      <span className="font-medium text-foreground">{module.title}</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="pl-6 space-y-2">
