@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Download, X, Clock, AlertCircle } from "lucide-react";
+import { Plus, FileText, X, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { VideoUpload } from "./VideoUpload";
 import { Lesson, Material } from "@/types/courseEditor";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface LessonEditorProps {
   lesson: Lesson;
@@ -24,6 +27,9 @@ export function LessonEditor({
   onMaterialAdd,
   onMaterialRemove,
 }: LessonEditorProps) {
+  const { toast } = useToast();
+  const [isLoadingDuration, setIsLoadingDuration] = useState(false);
+
   const handleVideoSelect = (file: File) => {
     // Simulate upload
     onUpdate({
@@ -48,13 +54,51 @@ export function LessonEditor({
     }, 500);
   };
 
-  const handleStreamingUrlChange = (url: string) => {
+  const fetchVideoDuration = async (url: string) => {
+    if (!url || !url.includes('.m3u8')) return;
+
+    setIsLoadingDuration(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-video-duration', {
+        body: { url },
+      });
+
+      if (error) {
+        console.error('Error fetching duration:', error);
+        toast({
+          title: "Não foi possível obter a duração",
+          description: "Preencha manualmente a duração do vídeo",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.success && data?.durationMinutes) {
+        onUpdate({ duration: data.durationMinutes });
+        toast({
+          title: "Duração detectada",
+          description: `Duração do vídeo: ${data.durationMinutes} minutos`,
+        });
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setIsLoadingDuration(false);
+    }
+  };
+
+  const handleStreamingUrlChange = async (url: string) => {
     onUpdate({
       streamingUrl: url,
       videoUrl: undefined,
       videoFileName: undefined,
       uploadProgress: undefined,
     });
+
+    // Auto-fetch duration when URL is added
+    if (url && url.includes('.m3u8')) {
+      await fetchVideoDuration(url);
+    }
   };
 
   const handleVideoRemove = () => {
@@ -109,25 +153,53 @@ export function LessonEditor({
           <Label htmlFor="lesson-duration" className="text-base font-semibold">
             Duração do Vídeo (minutos)
           </Label>
-          {(!lesson.duration || lesson.duration === 0) && (
+          {isLoadingDuration && (
+            <Badge variant="secondary" className="ml-auto">
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              Detectando...
+            </Badge>
+          )}
+          {!isLoadingDuration && (!lesson.duration || lesson.duration === 0) && (
             <Badge variant="destructive" className="ml-auto">
               <AlertCircle className="h-3 w-3 mr-1" />
               Obrigatório
             </Badge>
           )}
+          {!isLoadingDuration && lesson.duration && lesson.duration > 0 && (
+            <Badge variant="default" className="ml-auto bg-green-600">
+              ✓ {lesson.duration} min
+            </Badge>
+          )}
         </div>
-        <Input
-          id="lesson-duration"
-          type="number"
-          min="0"
-          value={lesson.duration || 0}
-          onChange={(e) => onUpdate({ duration: parseInt(e.target.value) || 0 })}
-          placeholder="Ex: 15"
-          className={(!lesson.duration || lesson.duration === 0) ? "border-destructive" : ""}
-        />
+        <div className="flex gap-2">
+          <Input
+            id="lesson-duration"
+            type="number"
+            min="0"
+            value={lesson.duration || 0}
+            onChange={(e) => onUpdate({ duration: parseInt(e.target.value) || 0 })}
+            placeholder="Ex: 15"
+            className={(!lesson.duration || lesson.duration === 0) ? "border-destructive" : ""}
+            disabled={isLoadingDuration}
+          />
+          {lesson.streamingUrl && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchVideoDuration(lesson.streamingUrl!)}
+              disabled={isLoadingDuration}
+            >
+              {isLoadingDuration ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Detectar"
+              )}
+            </Button>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           <AlertCircle className="h-3 w-3" />
-          Campo obrigatório para calcular a duração total do curso e liberar certificados
+          A duração é detectada automaticamente ao adicionar a URL do vídeo
         </p>
       </div>
 
