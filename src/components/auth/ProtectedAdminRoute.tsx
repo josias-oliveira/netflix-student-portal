@@ -1,8 +1,7 @@
-import { ReactNode, useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProtectedAdminRouteProps {
@@ -12,24 +11,8 @@ interface ProtectedAdminRouteProps {
 export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useIsAdmin();
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!authLoading && !adminLoading) {
-      if (!isAuthenticated) {
-        navigate("/", { replace: true });
-      } else if (!isAdmin) {
-        toast({
-          title: "Acesso Negado",
-          description: "Você não tem permissão para acessar esta área.",
-          variant: "destructive",
-        });
-        navigate("/", { replace: true });
-      }
-    }
-  }, [isAuthenticated, isAdmin, authLoading, adminLoading, navigate, toast]);
-
+  // Wait for both auth and admin checks to complete
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -42,11 +25,8 @@ export const ProtectedAdminRoute = ({ children }: ProtectedAdminRouteProps) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (!isAdmin) {
+  // Only redirect after loading is complete
+  if (!isAuthenticated || !isAdmin) {
     return <Navigate to="/" replace />;
   }
 
