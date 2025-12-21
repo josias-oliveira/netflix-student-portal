@@ -183,15 +183,22 @@ export function useEnrolledCourses() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     async function fetchEnrolledCourses() {
+      // Wait for auth to finish loading
+      if (authLoading) {
+        return;
+      }
+
       if (!user) {
         setCourses([]);
         setLoading(false);
         return;
       }
+
+      setLoading(true);
 
       try {
         // 1. Check if user has active subscription
@@ -305,7 +312,7 @@ export function useEnrolledCourses() {
     }
 
     fetchEnrolledCourses();
-  }, [user]);
+  }, [user, authLoading]);
 
   return { courses, loading, error };
 }
