@@ -3,6 +3,22 @@ import { CourseCard } from "@/components/course/CourseCard";
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import { useEnrolledCourses } from "@/hooks/useCourses";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const CourseCardSkeleton = () => (
+  <div className="rounded-lg overflow-hidden bg-card border border-border">
+    <Skeleton className="aspect-video w-full" />
+    <div className="p-4 space-y-3">
+      <Skeleton className="h-5 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <div className="flex items-center gap-2 pt-2">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-20" />
+      </div>
+      <Skeleton className="h-2 w-full mt-3" />
+    </div>
+  </div>
+);
 
 const MeusCursos = () => {
   const navigate = useNavigate();
@@ -32,7 +48,17 @@ const MeusCursos = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-24 pb-12 container mx-auto px-4 sm:px-8">
-          <p className="text-muted-foreground">Carregando seus cursos...</p>
+          <div className="space-y-8">
+            <div>
+              <Skeleton className="h-10 w-48 mb-2" />
+              <Skeleton className="h-5 w-32" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <CourseCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
         </main>
       </div>
     );
