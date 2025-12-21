@@ -84,14 +84,14 @@ export const CourseInfoModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] p-0 bg-background/95 backdrop-blur-sm border-primary/20">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+      <DialogContent className="max-w-3xl h-[90vh] sm:h-auto sm:max-h-[85vh] p-0 bg-background/95 backdrop-blur-sm border-primary/20 flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50 flex-shrink-0">
           <DialogTitle className="text-2xl sm:text-3xl font-bold text-foreground">
             {course.title}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="px-6 py-4 max-h-[calc(85vh-200px)]">
+        <ScrollArea className="flex-1 px-6 py-4 min-h-0">
           {/* Course Description */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-foreground mb-2">Sobre o Curso</h3>
@@ -151,8 +151,8 @@ export const CourseInfoModal = ({
           </div>
         </ScrollArea>
 
-        {/* CTA Section */}
-        <div className="px-6 py-4 border-t border-border/50 bg-muted/30">
+        {/* CTA Section - Always visible at bottom */}
+        <div className="px-6 py-4 border-t border-border/50 bg-muted/30 flex-shrink-0">
           <div className="text-center space-y-3">
             {!isAuthenticated && (
               <h3 className="text-xl font-bold text-foreground">
