@@ -7,6 +7,7 @@ import { CoursePlayerSkeleton } from "@/components/course/CoursePlayerSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLessonProgress";
+import { useLessonRating } from "@/hooks/useLessonRating";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { toast } from "sonner";
 
@@ -41,6 +42,7 @@ export default function CoursePlayer() {
   const [authChecked, setAuthChecked] = useState(false);
   
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
+  const { rating, loading: ratingLoading, setLessonRating } = useLessonRating(currentLesson?.id || null);
 
   // Check authentication FIRST
   useEffect(() => {
@@ -384,7 +386,13 @@ export default function CoursePlayer() {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
-                        className="text-2xl text-gray-300 hover:text-yellow-400 transition-colors"
+                        onClick={() => setLessonRating(star)}
+                        disabled={ratingLoading}
+                        className={`text-2xl transition-colors ${
+                          rating && star <= rating 
+                            ? "text-yellow-400" 
+                            : "text-gray-300 hover:text-yellow-400"
+                        }`}
                       >
                         ★
                       </button>
