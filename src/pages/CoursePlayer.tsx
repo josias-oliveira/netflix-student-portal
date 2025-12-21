@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLessonProgress";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { toast } from "sonner";
 
 interface Lesson {
   id: string;
@@ -176,6 +177,27 @@ export default function CoursePlayer() {
     if (courseId && currentLesson) {
       const completedIds = await getLessonProgressForCourse(courseId);
       setCompletedLessons(completedIds);
+      
+      // Check if course is now 100% complete
+      const allLessonIds = modules.flatMap(m => m.lessons.map(l => l.id));
+      const allCompleted = allLessonIds.length > 0 && allLessonIds.every(id => completedIds.includes(id));
+      
+      if (allCompleted && course?.certificate_enabled && user) {
+        // Generate certificate automatically
+        try {
+          const { data, error } = await supabase.functions.invoke("generate-certificate", {
+            body: { course_id: courseId, user_id: user.id },
+          });
+          
+          if (error) {
+            console.error("Certificate generation error:", error);
+          } else if (data?.success) {
+            toast.success("Parabéns! Seu certificado foi gerado. Acesse a página de Certificados para baixá-lo!");
+          }
+        } catch (err) {
+          console.error("Error generating certificate:", err);
+        }
+      }
     }
   };
 
