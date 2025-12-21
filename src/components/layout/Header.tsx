@@ -32,7 +32,7 @@ export const Header = () => {
     toast.success("Logout realizado com sucesso!");
     navigate("/");
   };
-  return <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-background via-background/95 to-transparent">
+  return <header className="fixed top-0 left-0 right-0 z-50 bg-background">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
