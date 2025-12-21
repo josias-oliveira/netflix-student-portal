@@ -43,6 +43,11 @@ export const HeroBanner = ({ course, onPlay, onInfo }: HeroBannerProps) => {
                 <span>{course.totalLessons} aulas</span>
               </>
             )}
+            {!course.isPaid && (
+              <span className="ml-1 px-2 py-0.5 bg-emerald-700 text-white text-xs font-semibold rounded">
+                Curso Gratuito
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
