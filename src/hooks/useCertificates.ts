@@ -1,34 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface Certificate {
-  id: number;
+  id: string;
   user_id: string;
-  course_id: number;
-  certificate_url: string;
-  validation_code: string;
+  course_id: string;
+  certificate_url: string | null;
   issued_at: string;
   course_title?: string;
   course_thumbnail?: string;
 }
 
 export const useCertificates = () => {
-  const { data: certificates = [], isLoading, refetch } = useQuery({
-    queryKey: ["certificates"],
+  const { user, loading: authLoading } = useAuth();
+
+  const {
+    data: certificates = [],
+    isLoading,
+    refetch,
+    error,
+  } = useQuery({
+    queryKey: ["certificates", user?.id],
+    enabled: !authLoading && !!user,
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
       const { data, error } = await supabase
         .from("certificates")
-        .select(`
-          *,
+        .select(
+          `
+          id,
+          user_id,
+          course_id,
+          certificate_url,
+          issued_at,
           courses (
             title,
             thumbnail_url
           )
-        `)
+        `
+        )
         .eq("user_id", user.id)
         .order("issued_at", { ascending: false });
 
@@ -39,13 +52,17 @@ export const useCertificates = () => {
         user_id: cert.user_id,
         course_id: cert.course_id,
         certificate_url: cert.certificate_url,
-        validation_code: cert.validation_code,
         issued_at: cert.issued_at,
         course_title: cert.courses?.title,
         course_thumbnail: cert.courses?.thumbnail_url,
       })) as Certificate[];
     },
   });
+
+  // Surface query errors (helps diagnose RLS/auth issues)
+  if (error) {
+    console.error("Certificates query error:", error);
+  }
 
   const downloadCertificate = async (certificate: Certificate) => {
     try {
@@ -70,14 +87,17 @@ export const useCertificates = () => {
   };
 
   const shareCertificate = (certificate: Certificate) => {
-    const validationUrl = `${window.location.origin}/validar-certificado/${certificate.validation_code}`;
-    navigator.clipboard.writeText(validationUrl);
-    toast.success("Link de validação copiado!");
+    if (!certificate.certificate_url) {
+      toast.error("Certificado ainda não está disponível para compartilhamento.");
+      return;
+    }
+
+    navigator.clipboard.writeText(certificate.certificate_url);
+    toast.success("Link do certificado copiado!");
   };
 
-  const generateCertificate = async (courseId: number) => {
+  const generateCertificate = async (courseId: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
       const { data, error } = await supabase.functions.invoke("generate-certificate", {
@@ -88,7 +108,7 @@ export const useCertificates = () => {
 
       toast.success("Certificado gerado com sucesso!");
       refetch();
-      
+
       return data;
     } catch (error: any) {
       console.error("Generate certificate error:", error);
@@ -99,7 +119,7 @@ export const useCertificates = () => {
 
   return {
     certificates,
-    isLoading,
+    isLoading: authLoading || isLoading,
     downloadCertificate,
     shareCertificate,
     generateCertificate,
