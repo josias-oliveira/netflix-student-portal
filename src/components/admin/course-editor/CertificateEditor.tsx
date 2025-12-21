@@ -27,6 +27,9 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
   const fontSize = course.certificate_font_size || 48;
   const fontColor = course.certificate_font_color || "#000000";
   const templateUrl = course.certificate_template_url || "";
+  const dateX = course.certificate_date_x || 50;
+  const dateY = course.certificate_date_y || 60;
+  const dateFontSize = course.certificate_date_font_size || 24;
 
   useEffect(() => {
     if (templateUrl) {
@@ -36,7 +39,7 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
 
   useEffect(() => {
     drawPreview();
-  }, [previewImage, textX, textY, fontSize, fontColor]);
+  }, [previewImage, textX, textY, fontSize, fontColor, dateX, dateY, dateFontSize]);
 
   const drawPreview = () => {
     const canvas = canvasRef.current;
@@ -52,7 +55,7 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
 
-      // Draw sample text
+      // Draw sample name text
       ctx.font = `bold ${fontSize}px Arial`;
       ctx.fillStyle = fontColor;
       ctx.textAlign = "center";
@@ -62,6 +65,17 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
       const y = (textY / 100) * canvas.height;
       
       ctx.fillText("NOME DO ALUNO", x, y);
+
+      // Draw sample date text
+      ctx.font = `${dateFontSize}px Arial`;
+      ctx.fillStyle = fontColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      const dx = (dateX / 100) * canvas.width;
+      const dy = (dateY / 100) * canvas.height;
+      
+      ctx.fillText("DD/MM/AAAA", dx, dy);
     };
     img.src = previewImage;
   };
@@ -226,6 +240,42 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
                 </div>
               </div>
 
+              {/* Date Position X */}
+              <div className="space-y-2">
+                <Label>Posição Horizontal da Data ({dateX}%)</Label>
+                <Slider
+                  value={[dateX]}
+                  onValueChange={([value]) => onUpdate({ certificate_date_x: value })}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+
+              {/* Date Position Y */}
+              <div className="space-y-2">
+                <Label>Posição Vertical da Data ({dateY}%)</Label>
+                <Slider
+                  value={[dateY]}
+                  onValueChange={([value]) => onUpdate({ certificate_date_y: value })}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+
+              {/* Date Font Size */}
+              <div className="space-y-2">
+                <Label>Tamanho da Fonte da Data ({dateFontSize}px)</Label>
+                <Slider
+                  value={[dateFontSize]}
+                  onValueChange={([value]) => onUpdate({ certificate_date_font_size: value })}
+                  min={12}
+                  max={48}
+                  step={2}
+                />
+              </div>
+
               {/* Preview */}
               {previewImage && (
                 <div className="space-y-2">
@@ -237,8 +287,8 @@ export const CertificateEditor = ({ course, onUpdate }: CertificateEditorProps) 
                     />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    💡 Preview de posicionamento: O texto "NOME DO ALUNO" mostra onde o nome será posicionado. 
-                    Ao gerar o certificado, o nome completo do aluno será inserido automaticamente a partir do perfil dele.
+                    💡 Preview de posicionamento: "NOME DO ALUNO" e "DD/MM/AAAA" mostram onde os textos serão posicionados. 
+                    Ao gerar o certificado, o nome e a data de conclusão serão inseridos automaticamente.
                   </p>
                 </div>
               )}

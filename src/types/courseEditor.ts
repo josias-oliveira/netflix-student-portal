@@ -42,6 +42,9 @@ export interface CourseStructure {
   certificate_text_y?: number;
   certificate_font_size?: number;
   certificate_font_color?: string;
+  certificate_date_x?: number;
+  certificate_date_y?: number;
+  certificate_date_font_size?: number;
   modules: Module[];
 }
 

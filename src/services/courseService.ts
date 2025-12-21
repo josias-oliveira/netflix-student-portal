@@ -29,6 +29,17 @@ export async function saveCourse(course: CourseStructure, status?: 'draft' | 'pu
     is_featured: course.featured || false,
     is_published: status === 'published',
     duration_hours: durationHours,
+    is_paid: course.is_paid || false,
+    price: course.price || null,
+    certificate_enabled: course.certificate_enabled || false,
+    certificate_template_url: course.certificate_template_url || null,
+    certificate_text_x: course.certificate_text_x || 50,
+    certificate_text_y: course.certificate_text_y || 50,
+    certificate_font_size: course.certificate_font_size || 48,
+    certificate_font_color: course.certificate_font_color || '#000000',
+    certificate_date_x: course.certificate_date_x || 50,
+    certificate_date_y: course.certificate_date_y || 60,
+    certificate_date_font_size: course.certificate_date_font_size || 24,
   };
 
   let courseId: string;
@@ -170,6 +181,17 @@ export async function loadCourse(courseId: string): Promise<CourseStructure> {
     thumbnail_url: course.thumbnail_url || undefined,
     featured: course.is_featured || false,
     status: course.is_published ? 'published' : 'draft',
+    is_paid: course.is_paid || false,
+    price: course.price || undefined,
+    certificate_enabled: course.certificate_enabled || false,
+    certificate_template_url: course.certificate_template_url || undefined,
+    certificate_text_x: course.certificate_text_x || 50,
+    certificate_text_y: course.certificate_text_y || 50,
+    certificate_font_size: course.certificate_font_size || 48,
+    certificate_font_color: course.certificate_font_color || '#000000',
+    certificate_date_x: course.certificate_date_x || 50,
+    certificate_date_y: course.certificate_date_y || 60,
+    certificate_date_font_size: course.certificate_date_font_size || 24,
     modules: [],
   };
 
