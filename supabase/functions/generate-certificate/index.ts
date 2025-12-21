@@ -135,21 +135,35 @@ serve(async (req) => {
       height: backgroundImage.height,
     });
 
-    // Draw student name
-    const fontSize = course.certificate_font_size || 48;
-    const textX = ((course.certificate_text_x || 50) / 100) * backgroundImage.width;
-    const textY = ((course.certificate_text_y || 50) / 100) * backgroundImage.height;
-    
     // Parse hex color to RGB
     const hexColor = course.certificate_font_color || '#000000';
     const r = parseInt(hexColor.slice(1, 3), 16) / 255;
     const g = parseInt(hexColor.slice(3, 5), 16) / 255;
     const b = parseInt(hexColor.slice(5, 7), 16) / 255;
 
+    // Draw student name
+    const nameFontSize = course.certificate_font_size || 48;
+    const nameX = ((course.certificate_text_x || 50) / 100) * backgroundImage.width;
+    const nameY = ((course.certificate_text_y || 50) / 100) * backgroundImage.height;
+
     page.drawText(studentName, {
-      x: textX,
-      y: backgroundImage.height - textY,
-      size: fontSize,
+      x: nameX,
+      y: backgroundImage.height - nameY,
+      size: nameFontSize,
+      color: rgb(r, g, b),
+    });
+
+    // Draw completion date
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('pt-BR'); // DD/MM/AAAA format
+    const dateFontSize = course.certificate_date_font_size || 24;
+    const dateX = ((course.certificate_date_x || 50) / 100) * backgroundImage.width;
+    const dateY = ((course.certificate_date_y || 60) / 100) * backgroundImage.height;
+
+    page.drawText(dateStr, {
+      x: dateX,
+      y: backgroundImage.height - dateY,
+      size: dateFontSize,
       color: rgb(r, g, b),
     });
 
