@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { PDFDocument, rgb } from "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm";
 
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -18,32 +20,33 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { course_id, user_id } = await req.json();
+    const { course_id, user_id, force } = await req.json();
 
     if (!course_id || !user_id) {
       throw new Error("course_id and user_id are required");
     }
 
-    console.log(`Generating certificate for user ${user_id}, course ${course_id}`);
+    console.log(`Generating certificate for user ${user_id}, course ${course_id} (force=${!!force})`);
 
-    // Check if certificate already exists
-    const { data: existingCert } = await supabase
-      .from('certificates')
-      .select('*')
-      .eq('user_id', user_id)
-      .eq('course_id', course_id)
-      .maybeSingle();
+    // If not forcing, return existing certificate to avoid unnecessary regeneration
+    if (!force) {
+      const { data: existingCert } = await supabase
+        .from("certificates")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("course_id", course_id)
+        .maybeSingle();
 
-    if (existingCert) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          certificate_url: existingCert.certificate_url,
-          validation_code: existingCert.validation_code,
-          message: "Certificate already exists"
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (existingCert) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            certificate_url: existingCert.certificate_url,
+            message: "Certificate already exists",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Get all lessons for the course
@@ -99,13 +102,17 @@ serve(async (req) => {
     }
 
     // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user_id)
-      .single();
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user_id)
+      .maybeSingle();
 
-    const studentName = profile?.full_name || "Aluno";
+    if (profileError) {
+      console.error("Profile fetch error:", profileError);
+    }
+
+    const studentName = profile?.full_name?.trim() || "Aluno";
 
     console.log(`Generating PDF for ${studentName}`);
 
@@ -141,28 +148,39 @@ serve(async (req) => {
     const g = parseInt(hexColor.slice(3, 5), 16) / 255;
     const b = parseInt(hexColor.slice(5, 7), 16) / 255;
 
-    // Draw student name
+    // Simple width estimation to center text (avoids font imports/type issues in Deno)
+    const estimateWidth = (text: string, fontSize: number) => text.length * fontSize * 0.55;
+
+    // Draw student name (centered on X)
     const nameFontSize = course.certificate_font_size || 48;
-    const nameX = ((course.certificate_text_x || 50) / 100) * backgroundImage.width;
-    const nameY = ((course.certificate_text_y || 50) / 100) * backgroundImage.height;
+    const nameXPercent = course.certificate_text_x || 50;
+    const nameYPercent = course.certificate_text_y || 50;
+
+    const nameCenterX = (nameXPercent / 100) * backgroundImage.width;
+    const nameTopY = (nameYPercent / 100) * backgroundImage.height;
+    const nameWidth = estimateWidth(studentName, nameFontSize);
 
     page.drawText(studentName, {
-      x: nameX,
-      y: backgroundImage.height - nameY,
+      x: nameCenterX - nameWidth / 2,
+      y: backgroundImage.height - nameTopY,
       size: nameFontSize,
       color: rgb(r, g, b),
     });
 
-    // Draw completion date
+    // Draw completion date (centered on X)
     const today = new Date();
     const dateStr = today.toLocaleDateString('pt-BR'); // DD/MM/AAAA format
     const dateFontSize = course.certificate_date_font_size || 24;
-    const dateX = ((course.certificate_date_x || 50) / 100) * backgroundImage.width;
-    const dateY = ((course.certificate_date_y || 60) / 100) * backgroundImage.height;
+    const dateXPercent = course.certificate_date_x || 50;
+    const dateYPercent = course.certificate_date_y || 60;
+
+    const dateCenterX = (dateXPercent / 100) * backgroundImage.width;
+    const dateTopY = (dateYPercent / 100) * backgroundImage.height;
+    const dateWidth = estimateWidth(dateStr, dateFontSize);
 
     page.drawText(dateStr, {
-      x: dateX,
-      y: backgroundImage.height - dateY,
+      x: dateCenterX - dateWidth / 2,
+      y: backgroundImage.height - dateTopY,
       size: dateFontSize,
       color: rgb(r, g, b),
     });
@@ -191,31 +209,55 @@ serve(async (req) => {
 
     const certificateUrl = urlData.publicUrl;
 
-    // Insert certificate record
-    const { data: certificate, error: insertError } = await supabase
-      .from('certificates')
+    // Upsert certificate record
+    const { data: existingRow } = await supabase
+      .from("certificates")
+      .select("id")
+      .eq("user_id", user_id)
+      .eq("course_id", course_id)
+      .maybeSingle();
+
+    if (existingRow?.id) {
+      const { data: updated, error: updateError } = await supabase
+        .from("certificates")
+        .update({ certificate_url: certificateUrl, issued_at: new Date().toISOString() })
+        .eq("id", existingRow.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error("Update error:", updateError);
+        throw updateError;
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          certificate_url: certificateUrl,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { error: insertError } = await supabase
+      .from("certificates")
       .insert({
         user_id,
         course_id,
         certificate_url: certificateUrl,
-      })
-      .select()
-      .single();
+      });
 
     if (insertError) {
       console.error("Insert error:", insertError);
       throw insertError;
     }
 
-    console.log(`Certificate generated successfully: ${certificate.validation_code}`);
-
     return new Response(
       JSON.stringify({
         success: true,
         certificate_url: certificateUrl,
-        validation_code: certificate.validation_code,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
