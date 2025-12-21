@@ -49,6 +49,13 @@ export default function CoursePlayer() {
   const { rating, loading: ratingLoading, setLessonRating } = useLessonRating(currentLesson?.id || null);
   const { comments, loading: commentsLoading, submitting: commentSubmitting, addComment } = useLessonComments(currentLesson?.id || null);
   const [newComment, setNewComment] = useState("");
+  const [animatingStar, setAnimatingStar] = useState<number | null>(null);
+
+  const handleStarClick = async (star: number) => {
+    setAnimatingStar(star);
+    await setLessonRating(star);
+    setTimeout(() => setAnimatingStar(null), 300);
+  };
 
   // Check authentication FIRST
   useEffect(() => {
@@ -392,13 +399,20 @@ export default function CoursePlayer() {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
-                        onClick={() => setLessonRating(star)}
+                        onClick={() => handleStarClick(star)}
                         disabled={ratingLoading}
-                        className={`text-2xl transition-colors ${
+                        className={`text-2xl transition-all duration-200 transform ${
+                          animatingStar === star 
+                            ? "scale-150" 
+                            : "hover:scale-125"
+                        } ${
                           rating && star <= rating 
                             ? "text-yellow-400" 
                             : "text-gray-300 hover:text-yellow-400"
                         }`}
+                        style={{
+                          transitionTimingFunction: animatingStar === star ? "cubic-bezier(0.68, -0.55, 0.265, 1.55)" : undefined
+                        }}
                       >
                         ★
                       </button>
