@@ -88,6 +88,30 @@ export default function CoursePlayer() {
           return;
         }
 
+        // Check access: if course is paid, user needs active subscription
+        if (courseData.is_paid) {
+          const { data: subscription } = await supabase
+            .from('subscriptions')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .maybeSingle();
+
+          if (!subscription) {
+            // No active subscription - redirect to subscription page
+            navigate('/assinatura');
+            return;
+          }
+        } else {
+          // Free course - auto-enroll user
+          await supabase
+            .from('enrollments')
+            .upsert(
+              { user_id: user.id, course_id: courseId },
+              { onConflict: 'user_id,course_id' }
+            );
+        }
+
         setCourse(courseData);
 
         // Load modules
@@ -139,7 +163,7 @@ export default function CoursePlayer() {
     }
 
     loadCourse();
-  }, [courseId, authChecked, user]);
+  }, [courseId, authChecked, user, navigate]);
 
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);

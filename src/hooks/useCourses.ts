@@ -194,18 +194,57 @@ export function useEnrolledCourses() {
       }
 
       try {
-        // Get all published courses (in the future, this would filter by enrollment)
-        const { data, error } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('is_published', true)
-          .order('created_at', { ascending: false });
+        // 1. Check if user has active subscription
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('id, status, plan_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle();
 
-        if (error) throw error;
+        const hasActiveSubscription = !!subscription;
+
+        let coursesToShow: any[] = [];
+
+        if (hasActiveSubscription) {
+          // 2. If has subscription → show ALL published courses
+          const { data, error } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('is_published', true)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          coursesToShow = data || [];
+        } else {
+          // 3. If NO subscription → show only enrolled courses (free courses user has enrolled in)
+          const { data: enrollments } = await supabase
+            .from('enrollments')
+            .select('course_id')
+            .eq('user_id', user.id);
+
+          if (!enrollments || enrollments.length === 0) {
+            setCourses([]);
+            setLoading(false);
+            return;
+          }
+
+          const enrolledCourseIds = enrollments.map(e => e.course_id);
+
+          const { data, error } = await supabase
+            .from('courses')
+            .select('*')
+            .in('id', enrolledCourseIds)
+            .eq('is_published', true)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          coursesToShow = data || [];
+        }
 
         // Get progress and duration for each course
         const coursesWithProgress = await Promise.all(
-          (data || []).map(async (course) => {
+          coursesToShow.map(async (course) => {
             // Get total lessons count
             const { data: modules } = await supabase
               .from('modules')
@@ -229,10 +268,27 @@ export function useEnrolledCourses() {
             // Calculate total duration
             const totalMinutes = lessons?.reduce((sum, lesson) => sum + (lesson.duration_minutes || 0), 0) || 0;
 
-            // For now, return 0 progress since we don't have lesson_progress table yet
+            // Calculate progress
+            const lessonIds = lessons?.map(l => l.id) || [];
+            let completedCount = 0;
+            
+            if (lessonIds.length > 0) {
+              const { count } = await supabase
+                .from('lesson_progress')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .in('lesson_id', lessonIds);
+              
+              completedCount = count || 0;
+            }
+
+            const progress = totalLessons && totalLessons > 0 
+              ? Math.round((completedCount / totalLessons) * 100) 
+              : 0;
+
             return {
               ...course,
-              progress: 0,
+              progress,
               totalLessons: totalLessons || 0,
               duration: formatDuration(totalMinutes),
             };
