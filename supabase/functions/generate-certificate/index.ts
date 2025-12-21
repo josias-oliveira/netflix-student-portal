@@ -148,8 +148,9 @@ serve(async (req) => {
     const g = parseInt(hexColor.slice(3, 5), 16) / 255;
     const b = parseInt(hexColor.slice(5, 7), 16) / 255;
 
-    // Simple width estimation to center text (avoids font imports/type issues in Deno)
-    const estimateWidth = (text: string, fontSize: number) => text.length * fontSize * 0.55;
+    // Use a standard font so we can measure text width and truly center it
+    // (Cast to any to avoid Deno type issues with pdf-lib StandardFonts)
+    const font: any = await pdfDoc.embedFont("Helvetica-Bold" as any);
 
     // Draw student name (centered on X)
     const nameFontSize = course.certificate_font_size || 48;
@@ -158,12 +159,13 @@ serve(async (req) => {
 
     const nameCenterX = (nameXPercent / 100) * backgroundImage.width;
     const nameTopY = (nameYPercent / 100) * backgroundImage.height;
-    const nameWidth = estimateWidth(studentName, nameFontSize);
+    const nameWidth = font.widthOfTextAtSize(studentName, nameFontSize);
 
     page.drawText(studentName, {
       x: nameCenterX - nameWidth / 2,
       y: backgroundImage.height - nameTopY,
       size: nameFontSize,
+      font,
       color: rgb(r, g, b),
     });
 
@@ -176,12 +178,13 @@ serve(async (req) => {
 
     const dateCenterX = (dateXPercent / 100) * backgroundImage.width;
     const dateTopY = (dateYPercent / 100) * backgroundImage.height;
-    const dateWidth = estimateWidth(dateStr, dateFontSize);
+    const dateWidth = font.widthOfTextAtSize(dateStr, dateFontSize);
 
     page.drawText(dateStr, {
       x: dateCenterX - dateWidth / 2,
       y: backgroundImage.height - dateTopY,
       size: dateFontSize,
+      font,
       color: rgb(r, g, b),
     });
 
