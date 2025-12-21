@@ -183,12 +183,12 @@ export default function CoursePlayer() {
       const allCompleted = allLessonIds.length > 0 && allLessonIds.every(id => completedIds.includes(id));
       
       if (allCompleted && course?.certificate_enabled && user) {
-        // Generate certificate automatically
+        // Generate certificate automatically (force regeneration to apply latest positioning/profile fixes)
         try {
           const { data, error } = await supabase.functions.invoke("generate-certificate", {
-            body: { course_id: courseId, user_id: user.id },
+            body: { course_id: courseId, user_id: user.id, force: true },
           });
-          
+
           if (error) {
             console.error("Certificate generation error:", error);
           } else if (data?.success) {
