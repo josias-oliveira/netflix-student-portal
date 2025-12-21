@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { HeroBanner } from "@/components/course/HeroBanner";
+import { HeroBannerSkeleton } from "@/components/course/HeroBannerSkeleton";
 import { CourseShelf } from "@/components/course/CourseShelf";
+import { CourseShelfSkeleton } from "@/components/course/CourseShelfSkeleton";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { CourseInfoModal } from "@/components/course/CourseInfoModal";
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCourses } from "@/hooks/useCourses";
-import { Sparkles } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -78,13 +79,7 @@ const Index = () => {
       {/* Hero Banner */}
       <div className="pt-16">
         {loading ? (
-          <div className="h-[70vh] flex flex-col items-center justify-center gap-4">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-              <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
-            </div>
-            <p className="text-muted-foreground">Carregando cursos...</p>
-          </div>
+          <HeroBannerSkeleton />
         ) : featuredCourse ? (
           <HeroBanner
             course={featuredCourse}
@@ -99,15 +94,17 @@ const Index = () => {
       </div>
 
       {/* Course Shelves */}
-      {!loading && convertedCourses.length > 0 && (
-        <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
+      <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
+        {loading ? (
+          <CourseShelfSkeleton count={5} />
+        ) : convertedCourses.length > 0 ? (
           <CourseShelf
             title="Todos os Cursos"
             courses={convertedCourses}
             onCourseClick={handleCourseClick}
           />
-        </div>
-      )}
+        ) : null}
+      </div>
 
       {/* Footer spacing */}
       <div className="h-20" />
