@@ -6,20 +6,26 @@ import { useNavigate } from "react-router-dom";
 import btxLogo from "@/assets/btx-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 export const Header = () => {
   const navigate = useNavigate();
-  const {
-    isAuthenticated,
-    user
-  } = useAuth();
-  const {
-    isAdmin
-  } = useIsAdmin();
+  const { isAuthenticated, user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleProtectedNavigation = (path: string) => {
     if (!isAuthenticated) {
       setAuthModalOpen(true);
@@ -27,12 +33,14 @@ export const Header = () => {
     }
     navigate(path);
   };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logout realizado com sucesso!");
     navigate("/");
   };
-  return <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/30">
+
+  return <header className={`fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/30 transition-shadow duration-300 ${isScrolled ? "shadow-lg shadow-black/20" : ""}`}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
