@@ -8,8 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLessonProgress, getLessonProgressForCourse } from "@/hooks/useLessonProgress";
 import { useLessonRating } from "@/hooks/useLessonRating";
+import { useLessonComments } from "@/hooks/useLessonComments";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Lesson {
   id: string;
@@ -43,6 +47,8 @@ export default function CoursePlayer() {
   
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
   const { rating, loading: ratingLoading, setLessonRating } = useLessonRating(currentLesson?.id || null);
+  const { comments, loading: commentsLoading, submitting: commentSubmitting, addComment } = useLessonComments(currentLesson?.id || null);
+  const [newComment, setNewComment] = useState("");
 
   // Check authentication FIRST
   useEffect(() => {
@@ -422,20 +428,80 @@ export default function CoursePlayer() {
               {/* Comments Section */}
               <div>
                 <h3 className="text-xl font-semibold text-foreground mb-4">Comentários</h3>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
+                
+                {/* New Comment Form */}
+                <div className="flex gap-4 mb-6">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
+                    <AvatarFallback className="bg-muted" />
+                  </Avatar>
                   <div className="flex-1">
                     <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Escreva sua pergunta ou comentário..."
                       className="w-full min-h-[100px] p-4 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     <div className="flex justify-end mt-3">
-                      <Button className="bg-green-500 hover:bg-green-600 text-white">
-                        Publicar
+                      <Button 
+                        className="bg-green-500 hover:bg-green-600 text-white"
+                        onClick={async () => {
+                          const success = await addComment(newComment);
+                          if (success) {
+                            setNewComment("");
+                            toast.success("Comentário enviado! Aguardando aprovação.");
+                          } else {
+                            toast.error("Erro ao enviar comentário");
+                          }
+                        }}
+                        disabled={commentSubmitting || !newComment.trim()}
+                      >
+                        {commentSubmitting ? "Enviando..." : "Publicar"}
                       </Button>
                     </div>
                   </div>
                 </div>
+
+                {/* Comments List */}
+                {commentsLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="flex gap-4 animate-pulse">
+                        <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-muted rounded w-32" />
+                          <div className="h-16 bg-muted rounded" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : comments.filter(c => c.status === "approved").length > 0 ? (
+                  <div className="space-y-6">
+                    {comments
+                      .filter(c => c.status === "approved")
+                      .map((comment) => (
+                        <div key={comment.id} className="flex gap-4">
+                          <Avatar className="h-10 w-10 flex-shrink-0">
+                            <AvatarImage src={comment.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`} />
+                            <AvatarFallback className="bg-muted" />
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-foreground">
+                                {comment.profile?.full_name || "Usuário"}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(comment.created_at), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+                              </span>
+                            </div>
+                            <p className="text-foreground whitespace-pre-wrap">{comment.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-4">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+                )}
               </div>
             </div>
           </div>

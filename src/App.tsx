@@ -15,6 +15,7 @@ import Courses from "./pages/admin/Courses";
 import Students from "./pages/admin/Students";
 import Subscriptions from "./pages/admin/Subscriptions";
 import Settings from "./pages/admin/Settings";
+import Comments from "./pages/admin/Comments";
 import CourseEditor from "./pages/admin/CourseEditor";
 import NotFound from "./pages/NotFound";
 import Perfil from "./pages/Perfil";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="cursos" element={<Courses />} />
             <Route path="alunos" element={<Students />} />
             <Route path="assinaturas" element={<Subscriptions />} />
+            <Route path="comentarios" element={<Comments />} />
             <Route path="configuracoes" element={<Settings />} />
           </Route>
           <Route path="/admin/cursos/editor/:courseId" element={<ProtectedAdminRoute><CourseEditor /></ProtectedAdminRoute>} />
