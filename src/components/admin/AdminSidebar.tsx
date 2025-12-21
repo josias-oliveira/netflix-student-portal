@@ -1,4 +1,4 @@
-import { Home, BookOpen, Users, CreditCard, Settings } from "lucide-react";
+import { Home, BookOpen, Users, CreditCard, Settings, MessageSquare } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import btxLogo from "@/assets/btx-logo.png";
@@ -19,6 +19,7 @@ const items = [
   { title: "Início", url: "/admin", icon: Home },
   { title: "Cursos", url: "/admin/cursos", icon: BookOpen },
   { title: "Alunos", url: "/admin/alunos", icon: Users },
+  { title: "Comentários", url: "/admin/comentarios", icon: MessageSquare },
   { title: "Assinaturas", url: "/admin/assinaturas", icon: CreditCard },
   { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
 ];

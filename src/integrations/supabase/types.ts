@@ -162,6 +162,44 @@ export type Database = {
           },
         ]
       }
+      lesson_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lesson_id: string
+          status: Database["public"]["Enums"]["comment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          status?: Database["public"]["Enums"]["comment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_comments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           completed_at: string
@@ -458,6 +496,7 @@ export type Database = {
     }
     Enums: {
       app_role: "aluno" | "admin"
+      comment_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -586,6 +625,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["aluno", "admin"],
+      comment_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
