@@ -60,7 +60,7 @@ export const useDashboardStats = () => {
         const { count: totalCourses, error: coursesError } = await supabase
           .from("courses")
           .select("*", { count: "exact", head: true })
-          .eq("status", "published");
+          .eq("is_published", true);
 
         if (coursesError) throw coursesError;
 
