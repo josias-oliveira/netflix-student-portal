@@ -71,9 +71,7 @@ const Certificados = () => {
                           year: "numeric"
                         })}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        Código: {certificate.validation_code?.substring(0, 8)}...
-                      </p>
+                      {/* Código de validação removido (não existe na tabela atual) */}
                     </div>
                     <div className="flex gap-2">
                       <Button
