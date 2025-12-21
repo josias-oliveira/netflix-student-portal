@@ -9,17 +9,6 @@ export interface Student {
   registrationDate: string;
 }
 
-interface ProfileData {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  created_at: string;
-  subscriptions: Array<{
-    plan_id: string;
-    status: string;
-  }>;
-}
-
 export const useStudents = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,31 +20,37 @@ export const useStudents = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch profiles with subscriptions and email
+        // Fetch profiles
         const { data: profiles, error: profilesError } = await supabase
           .from("profiles")
-          .select(`
-            id,
-            full_name,
-            email,
-            created_at,
-            subscriptions (
-              plan_id,
-              status
-            )
-          `)
+          .select("id, user_id, full_name, email, created_at")
           .order("created_at", { ascending: false });
 
         if (profilesError) throw profilesError;
 
+        // Fetch subscriptions separately
+        const { data: subscriptions, error: subsError } = await supabase
+          .from("subscriptions")
+          .select("user_id, plan_id, status");
+
+        if (subsError) throw subsError;
+
+        // Create a map of user_id to subscription
+        const subsMap = new Map(
+          (subscriptions || []).map((s) => [s.user_id, s])
+        );
+
         // Transform data to Student format
-        const studentsData: Student[] = (profiles as ProfileData[] || []).map((profile) => ({
-          id: profile.id,
-          name: profile.full_name || "Sem nome",
-          email: profile.email || "Email não disponível",
-          plan: profile.subscriptions?.[0]?.plan_id || "free",
-          registrationDate: profile.created_at,
-        }));
+        const studentsData: Student[] = (profiles || []).map((profile) => {
+          const subscription = subsMap.get(profile.user_id);
+          return {
+            id: profile.id,
+            name: profile.full_name || "Sem nome",
+            email: profile.email || "Email não disponível",
+            plan: subscription?.plan_id || "free",
+            registrationDate: profile.created_at,
+          };
+        });
 
         setStudents(studentsData);
       } catch (err) {
