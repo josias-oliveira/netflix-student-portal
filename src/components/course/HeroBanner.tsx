@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Play, Info } from "lucide-react";
+import { Play, Info, Star } from "lucide-react";
 import { Course } from "@/types/course";
 
 interface HeroBannerProps {
@@ -44,9 +44,16 @@ export const HeroBanner = ({ course, onPlay, onInfo }: HeroBannerProps) => {
               </>
             )}
             {!course.isPaid && (
-              <span className="ml-1 px-2 py-0.5 bg-emerald-700 text-white text-xs font-semibold rounded">
-                Curso Gratuito
-              </span>
+              <>
+                <span className="ml-1 px-2 py-0.5 bg-emerald-700 text-white text-xs font-semibold rounded">
+                  Curso Gratuito
+                </span>
+                <div className="flex items-center gap-0.5 ml-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
