@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import Hls from "hls.js";
 
 interface VideoPlayerProps {
@@ -11,6 +11,7 @@ interface VideoPlayerProps {
 export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgressUpdate }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
 
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
@@ -19,6 +20,27 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
     const progress = (video.currentTime / video.duration) * 100;
     onProgressUpdate?.(progress);
   }, [onProgressUpdate]);
+
+  const tryAutoplay = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    try {
+      // Try autoplay with sound first
+      video.muted = false;
+      await video.play();
+    } catch (err) {
+      // If blocked, try muted autoplay
+      console.log('Autoplay with sound blocked, trying muted:', err);
+      video.muted = true;
+      setIsMuted(true);
+      try {
+        await video.play();
+      } catch (mutedErr) {
+        console.log('Muted autoplay also blocked:', mutedErr);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -40,7 +62,7 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
           
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
             console.log('HLS manifest loaded');
-            video.play().catch(err => console.log('Autoplay prevented:', err));
+            tryAutoplay();
           });
 
           hls.on(Hls.Events.ERROR, (event, data) => {
@@ -49,15 +71,18 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           // Safari nativo suporta HLS
           video.src = streamingUrl;
+          video.addEventListener('loadedmetadata', tryAutoplay, { once: true });
         }
       } else {
         // URL direta de vídeo
         video.src = streamingUrl;
+        video.addEventListener('loadedmetadata', tryAutoplay, { once: true });
       }
     } 
     // Se tiver URL de vídeo normal
     else if (videoUrl) {
       video.src = videoUrl;
+      video.addEventListener('loadedmetadata', tryAutoplay, { once: true });
     }
 
     return () => {
@@ -66,7 +91,7 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
         hlsRef.current = null;
       }
     };
-  }, [videoUrl, streamingUrl]);
+  }, [videoUrl, streamingUrl, tryAutoplay]);
 
   if (!videoUrl && !streamingUrl) {
     return (
@@ -83,8 +108,8 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
       controls
       controlsList="nodownload"
       playsInline
-      preload="metadata"
-      autoPlay
+      preload="auto"
+      muted={isMuted}
       onTimeUpdate={handleTimeUpdate}
     >
       Seu navegador não suporta a reprodução de vídeo.
