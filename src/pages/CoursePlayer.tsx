@@ -270,17 +270,9 @@ export default function CoursePlayer() {
     }
   };
 
-  // SECURITY: Block all rendering until auth is verified
+  // SECURITY: Block all rendering until auth is verified - show skeleton for consistency
   if (!authChecked) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-          <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-primary" />
-        </div>
-        <p className="text-muted-foreground">Verificando autenticação...</p>
-      </div>
-    );
+    return <CoursePlayerSkeleton />;
   }
 
   // SECURITY: If not authenticated, show ONLY the auth modal - no course content
