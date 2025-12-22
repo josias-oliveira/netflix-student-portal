@@ -60,7 +60,6 @@ export const HeroBanner = ({ course, onPlay, onInfo }: HeroBannerProps) => {
           <div className="flex flex-wrap gap-3 pt-2">
             <Button
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
               onClick={onPlay}
             >
               <Play className="mr-2 h-5 w-5" fill="currentColor" />
@@ -70,7 +69,6 @@ export const HeroBanner = ({ course, onPlay, onInfo }: HeroBannerProps) => {
             <Button
               size="lg"
               variant="secondary"
-              className="bg-secondary/50 hover:bg-secondary text-secondary-foreground font-semibold"
               onClick={onInfo}
             >
               <Info className="mr-2 h-5 w-5" />

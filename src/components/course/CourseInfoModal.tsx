@@ -161,7 +161,6 @@ export const CourseInfoModal = ({
             )}
             <Button 
               size="lg" 
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
               onClick={onEnroll}
             >
               {isAuthenticated ? "Assistir ao Curso" : "Criar Minha Conta Gratuita e Assistir"}

@@ -48,13 +48,13 @@ export const Header = () => {
           </button>
           
           <nav className="hidden md:flex items-center gap-6">
-            <Button variant="ghost" className="text-foreground hover:text-black" onClick={() => navigate("/")}>
+            <Button variant="ghost" onClick={() => navigate("/")}>
               Início
             </Button>
-            <Button variant="ghost" className="text-foreground hover:text-black" onClick={() => handleProtectedNavigation("/meus-cursos")}>
+            <Button variant="ghost" onClick={() => handleProtectedNavigation("/meus-cursos")}>
               Meus Cursos
             </Button>
-            <Button variant="ghost" className="text-foreground hover:text-black" onClick={() => handleProtectedNavigation("/certificados")}>
+            <Button variant="ghost" onClick={() => handleProtectedNavigation("/certificados")}>
               Certificados
             </Button>
           </nav>
@@ -94,7 +94,7 @@ export const Header = () => {
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu> : <Button className="font-semibold text-sm sm:text-base whitespace-nowrap" onClick={() => setAuthModalOpen(true)}>
+            </DropdownMenu> : <Button className="text-sm sm:text-base whitespace-nowrap" onClick={() => setAuthModalOpen(true)}>
               CRIE SUA CONTA GRATUITAMENTE
             </Button>}
         </div>
