@@ -83,19 +83,13 @@ export default {
         },
         "star-pop": {
           "0%": {
-            transform: "scale(1) rotate(0deg)",
-          },
-          "25%": {
-            transform: "scale(1.4) rotate(-15deg)",
+            transform: "scale(1)",
           },
           "50%": {
-            transform: "scale(0.9) rotate(10deg)",
-          },
-          "75%": {
-            transform: "scale(1.2) rotate(-5deg)",
+            transform: "scale(1.3)",
           },
           "100%": {
-            transform: "scale(1) rotate(0deg)",
+            transform: "scale(1)",
           },
         },
         "complete-pop": {
@@ -119,7 +113,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "star-pop": "star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "star-pop": "star-pop 0.2s ease-out",
         "complete-pop": "complete-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
