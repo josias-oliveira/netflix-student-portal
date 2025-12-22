@@ -317,9 +317,9 @@ export default function CoursePlayer() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Focus Mode Overlay */}
+      {/* Focus Mode Overlay - z-[60] to cover sidebar (z-40) but below dropdown (z-100) */}
       <div 
-        className={`fixed inset-0 bg-black/80 z-10 transition-opacity duration-500 pointer-events-none ${focusMode ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/90 z-[60] transition-opacity duration-500 ${focusMode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setFocusMode(false)}
       />
       {/* Header */}
@@ -397,7 +397,7 @@ export default function CoursePlayer() {
         <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
-            <div className={`bg-black relative z-20 transition-all duration-500 ${focusMode ? 'shadow-2xl shadow-black/50' : ''}`}>
+            <div className={`bg-black relative transition-all duration-500 ${focusMode ? 'z-[70] shadow-2xl shadow-black/50' : 'z-20'}`}>
               {currentLesson && currentLesson.video_url ? (
                 <VideoPlayer
                   streamingUrl={currentLesson.video_url}
