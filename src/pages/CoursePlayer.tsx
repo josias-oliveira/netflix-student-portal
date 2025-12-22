@@ -319,8 +319,8 @@ export default function CoursePlayer() {
         onClick={() => setFocusMode(false)}
       />
       {/* Header */}
-      <header className={`fixed top-0 left-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-300 ${sidebarOpen ? 'right-96' : 'right-0'}`}>
-        <div className="px-6 py-3 flex items-center justify-between max-w-screen-2xl mx-auto">
+      <header className={`fixed top-0 left-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-300 overflow-visible ${sidebarOpen ? 'right-96' : 'right-0'}`}>
+        <div className="px-6 py-3 flex items-center justify-between max-w-screen-2xl mx-auto overflow-visible">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -344,9 +344,9 @@ export default function CoursePlayer() {
             </Button>
             
             {/* User Avatar with Dropdown */}
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full shrink-0">
                   <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
                     <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
                     <AvatarFallback>
@@ -355,7 +355,7 @@ export default function CoursePlayer() {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 z-[100]">
+              <DropdownMenuContent align="end" sideOffset={8} className="w-48 z-[100]">
                 <DropdownMenuItem onClick={() => navigate("/perfil")}>
                   Minha Conta
                 </DropdownMenuItem>
