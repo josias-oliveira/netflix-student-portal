@@ -427,9 +427,9 @@ export default function CoursePlayer() {
                 {/* Right: Theme Icon and Navigation */}
                 <div className="flex items-center gap-3 ml-6">
                   <Button
-                    variant={focusMode ? "default" : "ghost"}
+                    variant="outline"
                     size="icon"
-                    className={`transition-all duration-300 relative z-[80] ${focusMode ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    className="transition-all duration-300 relative z-[80] border-muted-foreground/30 text-muted-foreground hover:text-foreground hover:border-foreground/50"
                     onClick={() => setFocusMode(!focusMode)}
                   >
                     {focusMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
