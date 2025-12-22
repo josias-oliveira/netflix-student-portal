@@ -11,7 +11,7 @@ interface CourseCardProps {
 export const CourseCard = ({ course, onClick }: CourseCardProps) => {
   return (
     <div
-      className="group relative flex-shrink-0 w-[280px] sm:w-[320px] cursor-pointer course-card-hover"
+      className="group relative flex-shrink-0 w-[200px] sm:w-[280px] md:w-[320px] cursor-pointer course-card-hover"
       onClick={onClick}
     >
       <div className="relative aspect-video rounded-md overflow-hidden bg-card">
@@ -34,8 +34,8 @@ export const CourseCard = ({ course, onClick }: CourseCardProps) => {
 
         {/* Play button overlay */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center">
-            <Play className="w-8 h-8 text-primary-foreground ml-1" fill="currentColor" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/90 flex items-center justify-center">
+            <Play className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground ml-0.5 sm:ml-1" fill="currentColor" />
           </div>
         </div>
 
@@ -61,11 +61,11 @@ export const CourseCard = ({ course, onClick }: CourseCardProps) => {
         )}
       </div>
 
-      <div className="mt-3 space-y-1">
-        <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+      <div className="mt-2 sm:mt-3 space-y-1">
+        <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
           {course.title}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
           {course.description}
         </p>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -21,8 +21,8 @@ export const CourseShelf = ({ title, courses, onCourseClick }: CourseShelfProps)
   };
 
   return (
-    <div className="space-y-4 group/shelf">
-      <h2 className="text-xl sm:text-2xl font-bold text-foreground px-4 sm:px-8">
+    <div className="space-y-3 sm:space-y-4 group/shelf">
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground px-3 sm:px-4 md:px-8">
         {title}
       </h2>
       
@@ -40,7 +40,7 @@ export const CourseShelf = ({ title, courses, onCourseClick }: CourseShelfProps)
         {/* Course cards container */}
         <div
           ref={scrollRef}
-          className="shelf-scroll px-4 sm:px-8"
+          className="shelf-scroll px-3 sm:px-4 md:px-8 gap-3 sm:gap-4"
         >
           {courses.map((course) => (
             <CourseCard
