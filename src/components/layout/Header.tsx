@@ -41,13 +41,13 @@ export const Header = () => {
   };
 
   return <header className={`fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/30 transition-shadow duration-300 ${isScrolled ? "shadow-lg shadow-black/20" : ""}`}>
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4 sm:gap-8">
           <button onClick={() => navigate("/")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <img src={btxLogo} alt="BTX Logo" className="h-14 w-14 object-contain" />
+            <img src={btxLogo} alt="BTX Logo" className="h-10 sm:h-14 w-10 sm:w-14 object-contain" />
           </button>
           
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6">
             <Button variant="ghost" onClick={() => navigate("/")}>
               Início
             </Button>
@@ -60,9 +60,7 @@ export const Header = () => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
-          
-          
+        <div className="flex items-center gap-2 sm:gap-4">
           
 
           {isAuthenticated ? <DropdownMenu>
@@ -94,8 +92,9 @@ export const Header = () => {
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu> : <Button className="text-sm sm:text-base whitespace-nowrap" onClick={() => setAuthModalOpen(true)}>
-              CRIE SUA CONTA GRATUITAMENTE
+            </DropdownMenu> : <Button className="text-xs sm:text-sm whitespace-nowrap px-3 sm:px-6" onClick={() => setAuthModalOpen(true)}>
+              <span className="hidden sm:inline">CRIE SUA CONTA GRATUITAMENTE</span>
+              <span className="sm:hidden">CRIAR CONTA</span>
             </Button>}
         </div>
       </div>
