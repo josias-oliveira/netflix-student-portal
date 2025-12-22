@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles, User } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { CoursePlayerSkeleton } from "@/components/course/CoursePlayerSkeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -332,14 +332,24 @@ export default function CoursePlayer() {
               <h1 className="text-lg font-semibold text-foreground">{course.title}</h1>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <List className="mr-2 h-4 w-4" />
-            Conteúdo do Curso
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <List className="mr-2 h-4 w-4" />
+              Conteúdo do Curso
+            </Button>
+            
+            {/* User Avatar */}
+            <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" onClick={() => navigate("/perfil")}>
+              <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
+              <AvatarFallback>
+                <User className="h-4 w-4" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
         </div>
       </header>
 
