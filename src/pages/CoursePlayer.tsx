@@ -366,6 +366,7 @@ export default function CoursePlayer() {
             <Button 
               variant="outline" 
               size="sm"
+              className="border-border text-foreground hover:bg-muted"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <List className="mr-2 h-4 w-4" />
@@ -463,7 +464,7 @@ export default function CoursePlayer() {
                     variant="outline"
                     onClick={handlePreviousLesson}
                     disabled={currentIndex === 0}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 border-border text-foreground hover:bg-muted"
                     size="sm"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -473,7 +474,7 @@ export default function CoursePlayer() {
                     variant="outline"
                     onClick={handleNextLesson}
                     disabled={currentIndex === allLessons.length - 1}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 border-border text-foreground hover:bg-muted"
                     size="sm"
                   >
                     <span>Próxima</span>

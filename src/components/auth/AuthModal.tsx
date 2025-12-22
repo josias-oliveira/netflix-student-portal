@@ -115,7 +115,8 @@ export const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => 
         <div className="space-y-4">
           <Button
             type="button"
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-gray-300 shadow-sm font-semibold"
+            variant="outline"
+            className="w-full border-2 border-border bg-background text-foreground hover:bg-muted"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
@@ -191,7 +192,7 @@ export const AuthModal = ({ open, onOpenChange, onSuccess }: AuthModalProps) => 
             />
           </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
               {loading ? "Processando..." : isSignUp ? "Criar conta gratuita" : "Entrar"}
             </Button>
 
