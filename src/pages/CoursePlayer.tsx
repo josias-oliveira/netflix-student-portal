@@ -178,10 +178,31 @@ export default function CoursePlayer() {
 
           setModules(modulesWithLessons);
 
-          // Set first lesson as current ONLY on initial load
-          if (modulesWithLessons[0]?.lessons[0] && !initialLessonSetRef.current) {
-            setCurrentLesson(modulesWithLessons[0].lessons[0]);
-            initialLessonSetRef.current = true;
+          // Set lesson as current ONLY on initial load
+          if (!initialLessonSetRef.current) {
+            // Check if there's a saved lesson for this course
+            const savedLessonId = localStorage.getItem(`course_${courseId}_lastLesson`);
+            let lessonToSet = modulesWithLessons[0]?.lessons[0];
+
+            if (savedLessonId) {
+              // Find the saved lesson in the modules
+              for (const mod of modulesWithLessons) {
+                const foundLesson = mod.lessons.find(l => l.id === savedLessonId);
+                if (foundLesson) {
+                  lessonToSet = foundLesson;
+                  break;
+                }
+              }
+            }
+
+            if (lessonToSet) {
+              setCurrentLesson(lessonToSet);
+              initialLessonSetRef.current = true;
+              // Save if it's the first lesson (no saved state yet)
+              if (!savedLessonId && courseId) {
+                localStorage.setItem(`course_${courseId}_lastLesson`, lessonToSet.id);
+              }
+            }
           }
         }
 
@@ -208,6 +229,10 @@ export default function CoursePlayer() {
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);
     setVideoProgress(0); // Reset progress when changing lesson
+    // Save last watched lesson
+    if (courseId) {
+      localStorage.setItem(`course_${courseId}_lastLesson`, lesson.id);
+    }
   };
 
   const handleToggleComplete = async () => {
