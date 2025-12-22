@@ -60,7 +60,7 @@ export default function CoursePlayer() {
   const handleStarClick = async (star: number) => {
     setAnimatingStar(star);
     await setLessonRating(star);
-    setTimeout(() => setAnimatingStar(null), 300);
+    setTimeout(() => setAnimatingStar(null), 200);
   };
 
   const handleCompleteWithAnimation = async () => {
@@ -462,18 +462,17 @@ export default function CoursePlayer() {
                         key={star}
                         onClick={() => handleStarClick(star)}
                         disabled={ratingLoading}
-                        className={`text-2xl transition-all duration-300 origin-center ${
+                        className={`text-2xl transition-all duration-150 origin-center ${
                           animatingStar !== null && star <= animatingStar
                             ? "animate-star-pop" 
-                            : "hover:scale-125 hover:-rotate-12"
+                            : "hover:scale-110"
                         } ${
                           rating && star <= rating 
                             ? "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" 
                             : "text-muted-foreground/50 hover:text-yellow-400"
                         }`}
                         style={{
-                          animationDelay: animatingStar !== null && star <= animatingStar ? `${index * 60}ms` : undefined,
-                          animationFillMode: 'both'
+                          animationDelay: animatingStar !== null && star <= animatingStar ? `${index * 30}ms` : undefined,
                         }}
                       >
                         ★
