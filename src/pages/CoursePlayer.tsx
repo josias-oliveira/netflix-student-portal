@@ -50,11 +50,20 @@ export default function CoursePlayer() {
   const { comments, loading: commentsLoading, submitting: commentSubmitting, addComment } = useLessonComments(currentLesson?.id || null);
   const [newComment, setNewComment] = useState("");
   const [animatingStar, setAnimatingStar] = useState<number | null>(null);
+  const [completedAnimation, setCompletedAnimation] = useState(false);
 
   const handleStarClick = async (star: number) => {
     setAnimatingStar(star);
     await setLessonRating(star);
     setTimeout(() => setAnimatingStar(null), 300);
+  };
+
+  const handleCompleteWithAnimation = async () => {
+    if (!isCompleted) {
+      setCompletedAnimation(true);
+      setTimeout(() => setCompletedAnimation(false), 600);
+    }
+    handleToggleComplete();
   };
 
   // Check authentication FIRST
@@ -422,16 +431,19 @@ export default function CoursePlayer() {
                 </div>
                 <Button 
                   variant={isCompleted ? "default" : "outline"}
-                  className={isCompleted 
-                    ? "bg-green-500 hover:bg-green-600 text-white font-medium"
-                    : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium"
-                  }
-                  onClick={handleToggleComplete}
+                  className={`transition-all duration-300 ${
+                    completedAnimation ? "animate-complete-pop" : ""
+                  } ${
+                    isCompleted 
+                      ? "bg-green-500 hover:bg-green-600 text-white font-medium shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                      : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium dark:hover:bg-green-950"
+                  }`}
+                  onClick={handleCompleteWithAnimation}
                   disabled={progressLoading}
                 >
                   {isCompleted ? (
                     <>
-                      <Check className="mr-2 h-4 w-4" />
+                      <Check className={`mr-2 h-4 w-4 ${completedAnimation ? "animate-star-pop" : ""}`} />
                       Aula concluída
                     </>
                   ) : (
