@@ -12,6 +12,8 @@ import { useLessonComments } from "@/hooks/useLessonComments";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -49,6 +51,7 @@ export default function CoursePlayer() {
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
   const { rating, loading: ratingLoading, setLessonRating } = useLessonRating(currentLesson?.id || null);
   const { comments, loading: commentsLoading, submitting: commentSubmitting, addComment } = useLessonComments(currentLesson?.id || null);
+  const { isAdmin } = useIsAdmin();
   const [newComment, setNewComment] = useState("");
   const [animatingStar, setAnimatingStar] = useState<number | null>(null);
   const [completedAnimation, setCompletedAnimation] = useState(false);
@@ -348,13 +351,46 @@ export default function CoursePlayer() {
               Conteúdo do Curso
             </Button>
             
-            {/* User Avatar */}
-            <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" onClick={() => navigate("/perfil")}>
-              <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
-              <AvatarFallback>
-                <User className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
+            {/* User Avatar with Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                    <AvatarImage src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 z-[100]">
+                <DropdownMenuItem onClick={() => navigate("/perfil")}>
+                  Minha Conta
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/assinatura")}>
+                  Pagamento / Assinatura
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      Admin
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-destructive focus:text-destructive" 
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    toast.success("Logout realizado com sucesso!");
+                    navigate("/");
+                  }}
+                >
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
