@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
@@ -44,6 +44,7 @@ export default function CoursePlayer() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const initialLessonSetRef = useRef(false);
   
   const { isCompleted, loading: progressLoading, toggleComplete } = useLessonProgress(currentLesson?.id || null);
   const { rating, loading: ratingLoading, setLessonRating } = useLessonRating(currentLesson?.id || null);
@@ -170,9 +171,10 @@ export default function CoursePlayer() {
 
           setModules(modulesWithLessons);
 
-          // Set first lesson as current
-          if (modulesWithLessons[0]?.lessons[0]) {
+          // Set first lesson as current ONLY on initial load
+          if (modulesWithLessons[0]?.lessons[0] && !initialLessonSetRef.current) {
             setCurrentLesson(modulesWithLessons[0].lessons[0]);
+            initialLessonSetRef.current = true;
           }
         }
 
@@ -190,6 +192,11 @@ export default function CoursePlayer() {
 
     loadCourse();
   }, [courseId, authChecked, user, navigate]);
+
+  // Reset initial lesson flag when course changes
+  useEffect(() => {
+    initialLessonSetRef.current = false;
+  }, [courseId]);
 
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);
