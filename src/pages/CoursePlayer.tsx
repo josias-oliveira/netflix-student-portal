@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles, User } from "lucide-react";
+import { ArrowLeft, List, X, ChevronRight, ChevronLeft, Sun, Check, Sparkles, User, Moon } from "lucide-react";
 import { VideoPlayer } from "@/components/course/VideoPlayer";
 import { CoursePlayerSkeleton } from "@/components/course/CoursePlayerSkeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +52,7 @@ export default function CoursePlayer() {
   const [newComment, setNewComment] = useState("");
   const [animatingStar, setAnimatingStar] = useState<number | null>(null);
   const [completedAnimation, setCompletedAnimation] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
 
   const handleStarClick = async (star: number) => {
     setAnimatingStar(star);
@@ -316,7 +317,12 @@ export default function CoursePlayer() {
   const currentIndex = getCurrentLessonIndex();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Focus Mode Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/80 z-10 transition-opacity duration-500 pointer-events-none ${focusMode ? 'opacity-100' : 'opacity-0'}`}
+        onClick={() => setFocusMode(false)}
+      />
       {/* Header */}
       <header className={`fixed top-0 left-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-300 ${sidebarOpen ? 'right-96' : 'right-0'}`}>
         <div className="px-6 py-3 flex items-center justify-between max-w-screen-2xl mx-auto">
@@ -359,7 +365,7 @@ export default function CoursePlayer() {
         <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
-            <div className="bg-black">
+            <div className={`bg-black relative z-20 transition-all duration-500 ${focusMode ? 'ring-4 ring-primary/30 shadow-2xl shadow-primary/20' : ''}`}>
               {currentLesson && currentLesson.video_url ? (
                 <VideoPlayer
                   streamingUrl={currentLesson.video_url}
@@ -388,11 +394,12 @@ export default function CoursePlayer() {
                 {/* Right: Theme Icon and Navigation */}
                 <div className="flex items-center gap-3 ml-6">
                   <Button
-                    variant="ghost"
+                    variant={focusMode ? "default" : "ghost"}
                     size="icon"
-                    className="text-muted-foreground"
+                    className={`transition-all duration-300 ${focusMode ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    onClick={() => setFocusMode(!focusMode)}
                   >
-                    <Sun className="h-5 w-5" />
+                    {focusMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                   </Button>
                   <Button
                     variant="outline"
