@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Hls from "hls.js";
 
 interface VideoPlayerProps {
@@ -11,7 +11,6 @@ interface VideoPlayerProps {
 export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgressUpdate }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
 
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
@@ -26,19 +25,9 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
     if (!video) return;
 
     try {
-      // Try autoplay with sound first
-      video.muted = false;
       await video.play();
     } catch (err) {
-      // If blocked, try muted autoplay
-      console.log('Autoplay with sound blocked, trying muted:', err);
-      video.muted = true;
-      setIsMuted(true);
-      try {
-        await video.play();
-      } catch (mutedErr) {
-        console.log('Muted autoplay also blocked:', mutedErr);
-      }
+      console.log('Autoplay blocked by browser:', err);
     }
   }, []);
 
@@ -109,7 +98,6 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgress
       controlsList="nodownload"
       playsInline
       preload="auto"
-      muted={isMuted}
       onTimeUpdate={handleTimeUpdate}
     >
       Seu navegador não suporta a reprodução de vídeo.
