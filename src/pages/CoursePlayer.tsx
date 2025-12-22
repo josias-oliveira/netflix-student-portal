@@ -395,23 +395,24 @@ export default function CoursePlayer() {
               <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Avaliação</h3>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star, index) => (
                       <button
                         key={star}
                         onClick={() => handleStarClick(star)}
                         disabled={ratingLoading}
-                        className={`text-2xl transition-all duration-200 transform ${
-                          animatingStar === star 
-                            ? "scale-150" 
-                            : "hover:scale-125"
+                        className={`text-2xl transition-all duration-300 origin-center ${
+                          animatingStar !== null && star <= animatingStar
+                            ? "animate-star-pop" 
+                            : "hover:scale-125 hover:-rotate-12"
                         } ${
                           rating && star <= rating 
-                            ? "text-yellow-400" 
-                            : "text-gray-300 hover:text-yellow-400"
+                            ? "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" 
+                            : "text-muted-foreground/50 hover:text-yellow-400"
                         }`}
                         style={{
-                          transitionTimingFunction: animatingStar === star ? "cubic-bezier(0.68, -0.55, 0.265, 1.55)" : undefined
+                          animationDelay: animatingStar !== null && star <= animatingStar ? `${index * 60}ms` : undefined,
+                          animationFillMode: 'both'
                         }}
                       >
                         ★
