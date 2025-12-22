@@ -1,15 +1,24 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Hls from "hls.js";
 
 interface VideoPlayerProps {
   videoUrl?: string;
   streamingUrl?: string;
   className?: string;
+  onProgressUpdate?: (progress: number) => void;
 }
 
-export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, streamingUrl, className = "", onProgressUpdate }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+
+  const handleTimeUpdate = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !video.duration) return;
+    
+    const progress = (video.currentTime / video.duration) * 100;
+    onProgressUpdate?.(progress);
+  }, [onProgressUpdate]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -76,6 +85,7 @@ export function VideoPlayer({ videoUrl, streamingUrl, className = "" }: VideoPla
       playsInline
       preload="metadata"
       autoPlay
+      onTimeUpdate={handleTimeUpdate}
     >
       Seu navegador não suporta a reprodução de vídeo.
     </video>

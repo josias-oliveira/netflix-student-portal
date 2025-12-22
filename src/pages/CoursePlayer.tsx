@@ -56,6 +56,9 @@ export default function CoursePlayer() {
   const [animatingStar, setAnimatingStar] = useState<number | null>(null);
   const [completedAnimation, setCompletedAnimation] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+  
+  const canMarkComplete = isCompleted || videoProgress >= 90;
 
   const handleStarClick = async (star: number) => {
     setAnimatingStar(star);
@@ -204,6 +207,7 @@ export default function CoursePlayer() {
 
   const handleLessonClick = (lesson: Lesson) => {
     setCurrentLesson(lesson);
+    setVideoProgress(0); // Reset progress when changing lesson
   };
 
   const handleToggleComplete = async () => {
@@ -397,6 +401,7 @@ export default function CoursePlayer() {
               {currentLesson && currentLesson.video_url ? (
                 <VideoPlayer
                   streamingUrl={currentLesson.video_url}
+                  onProgressUpdate={setVideoProgress}
                 />
               ) : (
                 <div className="w-full aspect-video flex items-center justify-center">
@@ -487,18 +492,23 @@ export default function CoursePlayer() {
                   } ${
                     isCompleted 
                       ? "bg-green-500 hover:bg-green-600 text-white font-medium shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                      : "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium dark:hover:bg-green-950"
+                      : canMarkComplete
+                        ? "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 font-medium dark:hover:bg-green-950"
+                        : "border-muted-foreground/30 text-muted-foreground cursor-not-allowed"
                   }`}
                   onClick={handleCompleteWithAnimation}
-                  disabled={progressLoading}
+                  disabled={progressLoading || !canMarkComplete}
+                  title={!canMarkComplete ? "Assista pelo menos 90% do vídeo para marcar como concluída" : undefined}
                 >
                   {isCompleted ? (
                     <>
                       <Check className={`mr-2 h-4 w-4 ${completedAnimation ? "animate-star-pop" : ""}`} />
                       Aula concluída
                     </>
-                  ) : (
+                  ) : canMarkComplete ? (
                     "Marcar aula como concluída"
+                  ) : (
+                    `Assista ${Math.round(90 - videoProgress)}% mais para concluir`
                   )}
                 </Button>
               </div>
