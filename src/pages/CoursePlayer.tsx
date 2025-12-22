@@ -393,7 +393,7 @@ export default function CoursePlayer() {
         <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[990px] mx-auto">
             {/* Video Player */}
-            <div className={`bg-black relative z-20 transition-all duration-500 ${focusMode ? 'ring-4 ring-primary/30 shadow-2xl shadow-primary/20' : ''}`}>
+            <div className={`bg-black relative z-20 transition-all duration-500 ${focusMode ? 'shadow-2xl shadow-black/50' : ''}`}>
               {currentLesson && currentLesson.video_url ? (
                 <VideoPlayer
                   streamingUrl={currentLesson.video_url}
