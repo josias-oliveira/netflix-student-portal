@@ -18,6 +18,7 @@ export const CourseCard = ({ course, onClick }: CourseCardProps) => {
         <img
           src={course.thumbnail}
           alt={course.title}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
         />
         
