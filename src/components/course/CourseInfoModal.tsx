@@ -84,7 +84,7 @@ export const CourseInfoModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[90vh] sm:h-auto sm:max-h-[85vh] p-0 bg-background/95 backdrop-blur-sm border-primary/20 flex flex-col">
+      <DialogContent className="max-w-3xl h-[90vh] sm:h-[85vh] p-0 bg-background/95 backdrop-blur-sm border-primary/20 flex flex-col overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50 flex-shrink-0">
           <DialogTitle className="text-2xl sm:text-3xl font-bold text-foreground">
             {course.title}
