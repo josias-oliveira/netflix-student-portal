@@ -6,6 +6,7 @@ import { CourseShelf } from "@/components/course/CourseShelf";
 import { CourseShelfSkeleton } from "@/components/course/CourseShelfSkeleton";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { CourseInfoModal } from "@/components/course/CourseInfoModal";
+import { PremiumBanner } from "@/components/home/PremiumBanner";
 import { Course } from "@/types/course";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,6 +93,9 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Premium Banner */}
+      <PremiumBanner />
 
       {/* Course Shelves */}
       <div className="space-y-8 sm:space-y-12 py-8 sm:py-12">
