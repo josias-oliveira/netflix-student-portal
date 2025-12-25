@@ -1,19 +1,75 @@
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Zap } from "lucide-react";
+import { Check, Crown, Zap, Loader2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useState } from "react";
 
 const Assinatura = () => {
   const { toast } = useToast();
-  const currentPlan = "free" as "free" | "premium";
+  const { user } = useAuth();
+  const { isPremium, subscribed, subscriptionEnd, loading, createCheckout, openCustomerPortal, checkSubscription } = useSubscription();
+  const [searchParams] = useSearchParams();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
-  const handleUpgrade = () => {
-    toast({
-      title: "Upgrade de plano",
-      description: "Redirecionando para o checkout...",
-    });
+  // Handle success/cancel redirects from Stripe
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      toast({
+        title: "Assinatura realizada com sucesso!",
+        description: "Bem-vindo ao plano Premium. Aproveite todos os cursos!",
+      });
+      checkSubscription();
+    } else if (searchParams.get('canceled') === 'true') {
+      toast({
+        title: "Pagamento cancelado",
+        description: "Você pode tentar novamente quando quiser.",
+        variant: "destructive",
+      });
+    }
+  }, [searchParams, toast, checkSubscription]);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+
+    try {
+      setCheckoutLoading(true);
+      await createCheckout();
+    } catch (error) {
+      toast({
+        title: "Erro ao iniciar checkout",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      setPortalLoading(true);
+      await openCustomerPortal();
+    } catch (error) {
+      toast({
+        title: "Erro ao abrir portal",
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setPortalLoading(false);
+    }
   };
 
   const freeBenefits = [
@@ -32,6 +88,15 @@ const Assinatura = () => {
     "Projetos práticos exclusivos",
   ];
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return null;
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -45,17 +110,26 @@ const Assinatura = () => {
             </h1>
             <div className="flex items-center gap-2 mt-4">
               <p className="text-muted-foreground">Seu plano atual:</p>
-              <Badge variant={currentPlan === "premium" ? "default" : "secondary"} className="text-sm">
-                {currentPlan === "premium" ? (
-                  <>
-                    <Crown className="w-3 h-3 mr-1" />
-                    Premium
-                  </>
-                ) : (
-                  "Gratuito"
-                )}
-              </Badge>
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Badge variant={isPremium ? "default" : "secondary"} className="text-sm">
+                  {isPremium ? (
+                    <>
+                      <Crown className="w-3 h-3 mr-1" />
+                      Premium
+                    </>
+                  ) : (
+                    "Gratuito"
+                  )}
+                </Badge>
+              )}
             </div>
+            {isPremium && subscriptionEnd && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Próxima renovação: {formatDate(subscriptionEnd)}
+              </p>
+            )}
           </div>
 
           {/* Plans Comparison */}
@@ -79,7 +153,7 @@ const Assinatura = () => {
                     </li>
                   ))}
                 </ul>
-                {currentPlan === "free" && (
+                {!isPremium && (
                   <Badge variant="secondary" className="w-full justify-center py-2">
                     Plano Atual
                   </Badge>
@@ -99,7 +173,7 @@ const Assinatura = () => {
                 </CardTitle>
                 <CardDescription>Acesso completo à plataforma</CardDescription>
                 <div className="pt-4">
-                  <span className="text-4xl font-bold text-foreground">R$ 49</span>
+                  <span className="text-4xl font-bold text-foreground">R$ 49,90</span>
                   <span className="text-muted-foreground">/mês</span>
                 </div>
               </CardHeader>
@@ -112,26 +186,47 @@ const Assinatura = () => {
                     </li>
                   ))}
                 </ul>
-                {currentPlan === "free" ? (
+                {isPremium ? (
+                  <div className="space-y-3">
+                    <Badge variant="default" className="w-full justify-center py-2">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Seu Plano
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleManageSubscription}
+                      disabled={portalLoading}
+                    >
+                      {portalLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Settings className="mr-2 h-4 w-4" />
+                      )}
+                      Gerenciar Assinatura
+                    </Button>
+                  </div>
+                ) : (
                   <Button
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                     size="lg"
                     onClick={handleUpgrade}
+                    disabled={checkoutLoading || loading}
                   >
-                    <Zap className="mr-2 h-5 w-5" />
-                    Fazer Upgrade para Premium
+                    {checkoutLoading ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <Zap className="mr-2 h-5 w-5" />
+                    )}
+                    {user ? "Fazer Upgrade para Premium" : "Criar Conta e Assinar"}
                   </Button>
-                ) : (
-                  <Badge variant="default" className="w-full justify-center py-2">
-                    Plano Atual
-                  </Badge>
                 )}
               </CardContent>
             </Card>
           </div>
 
           {/* Why Premium Section */}
-          {currentPlan === "free" && (
+          {!isPremium && (
             <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-bold text-foreground mb-4">
@@ -161,6 +256,8 @@ const Assinatura = () => {
           )}
         </div>
       </main>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 };
