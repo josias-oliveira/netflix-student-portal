@@ -1,13 +1,24 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Crown, Sparkles, BookOpen, Award, Zap } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 export const PremiumBanner = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium, loading } = useSubscription();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  const handleButtonClick = () => {
+    if (user) {
+      navigate("/assinatura");
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
 
   // Don't show banner for premium users or while loading
   if (loading || isPremium) return null;
@@ -59,7 +70,7 @@ export const PremiumBanner = () => {
 
           {/* CTA Button */}
           <Button
-            onClick={() => navigate("/assinatura")}
+            onClick={handleButtonClick}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
             size="lg"
           >
@@ -81,6 +92,12 @@ export const PremiumBanner = () => {
           ))}
         </div>
       </div>
+
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+        onSuccess={() => navigate("/assinatura")}
+      />
     </div>
   );
 };
