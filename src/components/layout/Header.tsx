@@ -93,8 +93,7 @@ export const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu> : <Button className="text-xs sm:text-sm whitespace-nowrap px-3 sm:px-6" onClick={() => setAuthModalOpen(true)}>
-              <span className="hidden sm:inline">CRIE SUA CONTA GRATUITAMENTE</span>
-              <span className="sm:hidden">CRIAR CONTA</span>
+              Crie Sua Conta Gratuita
             </Button>}
         </div>
       </div>
