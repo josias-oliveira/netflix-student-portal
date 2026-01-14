@@ -88,7 +88,7 @@ export function CourseInfoEditor({
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('thumbnails')
+        .from('course-thumbnails')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
@@ -98,7 +98,7 @@ export function CourseInfoEditor({
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('thumbnails')
+        .from('course-thumbnails')
         .getPublicUrl(filePath);
 
       if (type === 'thumbnail') {
